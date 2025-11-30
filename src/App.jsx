@@ -5,13 +5,14 @@ const gamesData = [
   // 1. Party Games & Battle Royales
   {
     id: 1,
-    title: "Fall Guys: Ultimate Knockout",
-    players: "Até 32 (Lobbies Personalizados)",
+    title: "Fall Guys",
+    players: "Até 60 (Custom: 40+)",
     genre: "Party / Battle Royale",
-    platforms: ["PC", "Console", "Mobile"],
+    platforms: ["PC", "Console", "Switch"],
     price: "Grátis",
-    description: "Gincanas caóticas com jujubas. Ideal para torneios rápidos.",
-    link: "Epic Games / Lojas de Apps"
+    description: "Gincanas caóticas com jujubas. Obrigatório para grupos grandes.",
+    linkName: "Epic Games",
+    url: "https://store.epicgames.com/pt-BR/p/fall-guys"
   },
   {
     id: 2,
@@ -20,39 +21,43 @@ const gamesData = [
     genre: "Party / Battle Royale",
     platforms: ["PC", "Mobile", "Console"],
     price: "Grátis",
-    description: "Alternativa leve ao Fall Guys, roda bem em qualquer celular.",
-    link: "Steam / Google Play / App Store"
+    description: "A versão leve do Fall Guys. Roda em qualquer celular e PC.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/1677740/Stumble_Guys/"
   },
   {
     id: 3,
     title: "Pico Park",
-    players: "10 (Classic) / 8 (Novo)",
+    players: "Até 8 (Oficial)",
     genre: "Puzzle Cooperativo",
     platforms: ["PC", "Switch"],
-    price: "Pago / Grátis (Classic)",
+    price: "R$ 16,99",
     description: "Teste de amizade. Coordenação total ou caos absoluto.",
-    link: "Steam"
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/1509960/PICO_PARK/"
   },
   {
     id: 4,
     title: "Crab Game",
-    players: "35-40+",
+    players: "Até 40",
     genre: "Survival / Minigames",
     platforms: ["PC"],
     price: "Grátis",
-    description: "Inspirado em Round 6. Chat de proximidade essencial.",
-    link: "Steam"
+    description: "Inspirado em Round 6. Chat de proximidade é a alma do jogo.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/1782210/Crab_Game/"
   },
   // 2. Dedução Social
   {
     id: 5,
     title: "Among Us",
-    players: "15 (até 100 com Mods)",
+    players: "4-15",
     genre: "Dedução Social",
     platforms: ["PC", "Mobile", "Console"],
-    price: "Pago (PC) / Grátis (Mobile)",
-    description: "Descubra o impostor antes que ele elimine a tripulação.",
-    link: "Steam / Lojas de Apps"
+    price: "R$ 16,99 (PC) / Grátis (Mobile)",
+    description: "O clássico. Descubra o impostor ou morra tentando.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/945360/Among_Us/"
   },
   {
     id: 6,
@@ -61,211 +66,254 @@ const gamesData = [
     genre: "Dedução Social",
     platforms: ["PC", "Mobile"],
     price: "Grátis",
-    description: "Similar ao Among Us, mas com patos e chat de voz nativo.",
-    link: "Steam / Mobile"
+    description: "Among Us com patos e chat de voz embutido. Muito caótico.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/"
   },
   {
     id: 7,
-    title: "Dale & Dawson Stationery Supplies",
+    title: "Dale & Dawson Stationery",
     players: "Até 21",
     genre: "Roleplay / Dedução",
     platforms: ["PC"],
-    price: "Pago",
-    description: "Simulador de escritório. Quem trabalha e quem finge (Slackers)?",
-    link: "Steam"
+    price: "R$ 26,49",
+    description: "Simulador de escritório. Quem está trabalhando e quem está fingindo?",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/2920570/Dale__Dawson_Stationery_Supplies/"
   },
   {
     id: 8,
     title: "Lockdown Protocol",
-    players: "Até 16",
-    genre: "Dedução / FPS",
+    players: "3-8 (Mods para mais)",
+    genre: "Dedução / Sci-Fi",
     platforms: ["PC"],
-    price: "Pago",
-    description: "Tarefas cooperativas com traidores armados em primeira pessoa.",
-    link: "Steam"
+    price: "R$ 32,99",
+    description: "Dedução em primeira pessoa onde você precisa matar os traidores.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/2780980/LOCKDOWN_Protocol/"
   },
   {
     id: 9,
     title: "Town of Salem 2",
-    players: "15",
+    players: "Até 15",
     genre: "Dedução / Lógica",
     platforms: ["PC"],
-    price: "Grátis (Limitado) / Pago",
-    description: "Xadrez social com muitos papéis e habilidades complexas.",
-    link: "Steam"
+    price: "Grátis",
+    description: "Um xadrez social. Minta, julgue e enforque os culpados.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/2140510/Town_of_Salem_2/"
+  },
+  {
+    id: 27,
+    title: "Feign",
+    players: "4-12",
+    genre: "Dedução",
+    platforms: ["PC", "Mobile"],
+    price: "R$ 16,99",
+    description: "Dedução onde você pode ser 'louco' e receber informações falsas.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/1436990/Feign/"
   },
   // 3. Sobrevivência e Sandbox
   {
     id: 10,
-    title: "Minecraft (Java)",
-    players: "Ilimitado (Servidor Dedicado)",
-    genre: "Sandbox / Sobrevivência",
-    platforms: ["PC", "Console", "Mobile"],
-    price: "Pago",
-    description: "Construa e sobreviva. Requer servidor próprio para muitos jogadores.",
-    link: "Site Oficial"
+    title: "Minecraft",
+    players: "Ilimitado (Servidor)",
+    genre: "Sandbox",
+    platforms: ["Todas"],
+    price: "R$ 99,00",
+    description: "O maior sandbox do mundo. Requer servidor para muitos players.",
+    linkName: "Site Oficial",
+    url: "https://www.minecraft.net/pt-br/store/minecraft-java-bedrock-edition-pc"
   },
   {
     id: 11,
     title: "Lethal Company",
-    players: "32-50 (Com Mod)",
-    genre: "Terror Cooperativo",
+    players: "4 (Mods: até 32+)",
+    genre: "Terror Coop",
     platforms: ["PC"],
-    price: "Pago",
-    description: "Colete sucata em luas perigosas. Requer mod 'MoreCompany'.",
-    link: "Steam"
+    price: "R$ 32,99",
+    description: "Bata metas de lucro coletando sucata em luas de terror.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/1966720/Lethal_Company/"
   },
   {
     id: 12,
     title: "Content Warning",
-    players: "16+ (Com Mod)",
-    genre: "Terror / Comédia",
+    players: "4 (Mods: 16+)",
+    genre: "Terror / Youtuber",
     platforms: ["PC"],
-    price: "Pago",
-    description: "Filme monstros para viralizar no SpookTube.",
-    link: "Steam"
+    price: "R$ 26,49",
+    description: "Filme seus amigos morrendo para monstros e viralize na internet.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/2881650/Content_Warning/"
   },
   {
     id: 13,
     title: "Valheim",
-    players: "10+ (Com Mod)",
+    players: "1-10",
     genre: "Sobrevivência Viking",
     platforms: ["PC", "Xbox"],
-    price: "Pago",
-    description: "Explore o purgatório viking. Mods ajudam a passar de 10 players.",
-    link: "Steam"
+    price: "R$ 37,99",
+    description: "Explore o purgatório viking. Construa barcos e enfrente chefes.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/892970/Valheim/"
   },
   {
     id: 14,
     title: "Don't Starve Together",
-    players: "6 (20-64 Com Mod)",
+    players: "1-6 (Mods: Mais)",
     genre: "Sobrevivência",
     platforms: ["PC", "Console"],
-    price: "Pago",
-    description: "Sobrevivência gótica e difícil. Mods expandem o limite facilmente.",
-    link: "Steam"
+    price: "R$ 27,99",
+    description: "Não morra de fome. Estilo gótico e muito difícil.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/322330/Dont_Starve_Together/"
   },
   {
     id: 15,
     title: "Project Zomboid",
-    players: "32-100",
-    genre: "Sobrevivência Hardcore",
+    players: "Até 32+",
+    genre: "Simulador Zumbi",
     platforms: ["PC"],
-    price: "Pago",
-    description: "Simulador de apocalipse zumbi extremamente detalhado.",
-    link: "Steam"
+    price: "R$ 59,99",
+    description: "O simulador de apocalipse zumbi mais detalhado que existe.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/108600/Project_Zomboid/"
   },
-  // 4. Navegador
+  {
+    id: 28,
+    title: "Barotrauma",
+    players: "Até 16",
+    genre: "Simulador Submarino",
+    platforms: ["PC"],
+    price: "R$ 99,99",
+    description: "Gerencie um submarino no espaço. Complexo e claustrofóbico.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/602960/Barotrauma/"
+  },
+  // 4. Navegador (Web)
   {
     id: 16,
     title: "Gartic Phone",
     players: "Até 30",
-    genre: "Casual / Desenho",
+    genre: "Desenho / Casual",
     platforms: ["Web"],
     price: "Grátis",
-    description: "O telefone sem fio desenhado. Garantia de risadas.",
-    link: "garticphone.com"
+    description: "Telefone sem fio desenhado. Garantia de risadas.",
+    linkName: "Jogar Agora",
+    url: "https://garticphone.com"
   },
   {
     id: 17,
     title: "JKLM.fun",
-    players: "16+ (Fila)",
+    players: "16+",
     genre: "Palavras / Party",
     platforms: ["Web"],
     price: "Grátis",
-    description: "Jogo da bomba com palavras e conhecimentos gerais.",
-    link: "jklm.fun"
+    description: "O jogo da bomba, mas com digitação de palavras.",
+    linkName: "Jogar Agora",
+    url: "https://jklm.fun"
   },
   {
     id: 18,
     title: "Make It Meme",
-    players: "15+",
+    players: "Até 15",
     genre: "Criatividade",
     platforms: ["Web"],
     price: "Grátis",
-    description: "Crie legendas para memes e vote nos melhores.",
-    link: "makeitmeme.com"
+    description: "Crie legendas engraçadas para memes e vote nos amigos.",
+    linkName: "Jogar Agora",
+    url: "https://makeitmeme.com"
   },
   {
     id: 19,
     title: "Board Game Arena",
-    players: "10-12",
+    players: "Varia (Até 12)",
     genre: "Jogos de Tabuleiro",
     platforms: ["Web"],
-    price: "Grátis / Freemium",
-    description: "Versões digitais de jogos como Saboteur e 6 nimmt!.",
-    link: "boardgamearena.com"
+    price: "Grátis",
+    description: "Centenas de jogos de tabuleiro (Uno, Saboteur) no navegador.",
+    linkName: "Acessar Site",
+    url: "https://boardgamearena.com"
   },
   {
-    id: 25,
+    id: 20,
     title: "StopotS",
     players: "Ilimitado",
-    genre: "Palavras / Adedonha",
+    genre: "Palavras / Stop",
     platforms: ["Web", "Mobile"],
     price: "Grátis",
-    description: "O famoso Stop online. Categorias personalizáveis.",
-    link: "stopots.com.br"
+    description: "O famoso 'Adedonha' ou 'Stop' online.",
+    linkName: "Jogar Agora",
+    url: "https://stopots.com.br"
   },
   {
-    id: 26,
+    id: 21,
     title: "Codenames Online",
     players: "Ilimitado",
     genre: "Palavras / Times",
     platforms: ["Web"],
     price: "Grátis",
-    description: "Jogo de espionagem e palavras em times.",
-    link: "codenames.game"
+    description: "Jogo de espiões e dicas de palavras em times.",
+    linkName: "Jogar Agora",
+    url: "https://codenames.game"
   },
-  // 5. Shooters
+  // 5. Shooters e Ação
   {
-    id: 20,
+    id: 22,
     title: "Team Fortress 2",
-    players: "32-100",
-    genre: "FPS",
+    players: "Até 32",
+    genre: "FPS de Classe",
     platforms: ["PC"],
     price: "Grátis",
-    description: "O clássico hero shooter. Servidores comunitários suportam caos total.",
-    link: "Steam"
+    description: "O pai dos hero shooters. Caótico e divertido.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/440/Team_Fortress_2/"
   },
   {
-    id: 21,
+    id: 23,
     title: "Sven Co-op",
     players: "Até 32",
     genre: "FPS Cooperativo",
     platforms: ["PC"],
     price: "Grátis",
-    description: "Half-Life cooperativo. Roda em qualquer computador.",
-    link: "Steam"
-  },
-  {
-    id: 22,
-    title: "Halo Infinite",
-    players: "Até 28",
-    genre: "FPS Arena",
-    platforms: ["PC", "Xbox"],
-    price: "Grátis (Multiplayer)",
-    description: "Partidas personalizadas (Custom Games) suportam grandes times.",
-    link: "Steam / Xbox App"
-  },
-  {
-    id: 23,
-    title: "Unfortunate Spacemen",
-    players: "Até 16",
-    genre: "FPS / Dedução",
-    platforms: ["PC"],
-    price: "Grátis",
-    description: "Mistura de tiroteio com a paranóia de Among Us.",
-    link: "Steam"
+    description: "Half-Life cooperativo para jogar a campanha com a galera.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/225840/Sven_Coop/"
   },
   {
     id: 24,
-    title: "Unturned",
-    players: "24+",
-    genre: "Sobrevivência / FPS",
-    platforms: ["PC", "Console"],
+    title: "Halo Infinite",
+    players: "Até 28 (Custom)",
+    genre: "FPS Arena",
+    platforms: ["PC", "Xbox"],
     price: "Grátis",
-    description: "Sobrevivência zumbi com visual simples estilo bloco.",
-    link: "Steam"
+    description: "Multiplayer gratuito. Crie salas privadas para batalhas épicas.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/1240440/Halo_Infinite/"
+  },
+  {
+    id: 25,
+    title: "Unfortunate Spacemen",
+    players: "Até 16",
+    genre: "FPS / Terror",
+    platforms: ["PC"],
+    price: "Grátis",
+    description: "Mistura de Among Us com tiroteio e monstros.",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/408900/Unfortunate_Spacemen/"
+  },
+  {
+    id: 26,
+    title: "Unturned",
+    players: "Até 24+",
+    genre: "Sobrevivência / FPS",
+    platforms: ["PC"],
+    price: "Grátis",
+    description: "Sobrevivência zumbi com visual simples (blocos).",
+    linkName: "Steam",
+    url: "https://store.steampowered.com/app/304930/Unturned/"
   }
 ];
 
