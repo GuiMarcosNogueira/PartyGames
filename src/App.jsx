@@ -1,35 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// --- AUTOMAÇÃO DE IMAGENS ---
-// O comando 'import.meta.glob' requer target: 'es2020' ou superior.
-// Como o ambiente atual está configurado para ES2015, vamos desativar a automação para evitar erros de compilação.
-// Se você atualizar o vite.config.js para 'es2020', pode descomentar o bloco abaixo.
-
-
-const allGameImages = import.meta.glob('/src/assets/games/!**!/!*.{png,jpg,jpeg,webp,gif}', {
+const allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif,PNG,JPG,JPEG,WEBP,GIF}', {
   eager: true,
   import: 'default',
   query: '?url'
 });
 
 
-// Fallback seguro para ambientes ES2015:
+// Fallback seguro para o ambiente de preview (ES2015):
 //const allGameImages = {};
 
-// Função inteligente que busca imagens na pasta correta ou gera placeholders
+// Função inteligente que busca imagens na pasta correta
 const getImagesForGame = (folderName, gameTitle) => {
-  // 1. Filtra as imagens que pertencem à pasta deste jogo
+  // 1. Filtra as imagens de forma mais flexível (se a automação estiver ativa)
   const images = Object.keys(allGameImages)
-    .filter((path) => path.includes(`/src/assets/games/${folderName}/`))
+    .filter((path) => path.includes(`/${folderName}/`))
     .map((path) => allGameImages[path]);
 
-  // 2. Se achou imagens reais (arquivos locais), retorna elas
+  // 2. Se achou imagens reais, retorna elas
   if (images.length > 0) {
     return images;
   }
 
-  // 3. Fallback: Se a pasta estiver vazia ou automação desligada, gera placeholders
+  // 3. Fallback: Se não achou (ou automação desligada), usa placeholders
   return [
     `https://placehold.co/600x350/2563eb/ffffff?text=${encodeURIComponent(gameTitle)}+Gameplay`,
     `https://placehold.co/600x350/1e40af/ffffff?text=${encodeURIComponent(gameTitle)}+Lobby`,
