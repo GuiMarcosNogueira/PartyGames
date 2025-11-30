@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, Sun, Moon } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, DollarSign } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
 let allGameImages = {};
@@ -32,7 +32,7 @@ const parsePrice = (priceStr) => {
   if (lower.includes('grátis') || lower.includes('free')) return 0;
   const match = priceStr.match(/(\d+[.,]?\d*)/);
   if (match) return parseFloat(match[0].replace(',', '.'));
-  return 999; 
+  return 999; // Jogos apenas como "Pago" ou "Assinatura" recebem valor alto
 };
 
 const getMaxPlayers = (playerStr) => {
@@ -317,29 +317,6 @@ const GameCard = ({ game, onImageClick }) => {
   );
 };
 
-const GamesTable = ({ games }) => (
-  <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden animate-fadeIn">
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm text-left">
-        <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700">
-          <tr><th className="px-6 py-4 font-bold">Jogo</th><th className="px-6 py-4 font-bold">Estilo</th><th className="px-6 py-4 font-bold">Jogadores</th><th className="px-6 py-4 font-bold">Preço (BR)</th><th className="px-6 py-4 font-bold">Plataformas</th><th className="px-6 py-4 font-bold">Ação</th></tr>
-        </thead>
-        <tbody className="text-gray-800 dark:text-gray-200">
-          {games.map((game, index) => {
-            const isWeb = game.platforms.includes("Web");
-            const images = getImagesForGame(game.folder, game.title);
-            return (
-              <tr key={game.id} className={`border-b border-gray-100 dark:border-zinc-800 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/50 dark:bg-zinc-900/50'}`}>
-                <td className="px-6 py-4 font-bold whitespace-nowrap flex items-center gap-3"><img src={images[0]} alt="" className="w-10 h-10 rounded object-cover border border-gray-200 dark:border-zinc-700" />{game.title}</td><td className="px-6 py-4 text-gray-600 dark:text-gray-400"><span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-zinc-700 text-gray-800 dark:text-gray-200">{game.style}</span></td><td className="px-6 py-4 text-blue-600 dark:text-blue-400 font-medium">{game.players}</td><td className="px-6 py-4">{game.price.includes("Grátis") ? (<span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded text-xs font-bold">Grátis</span>) : (<span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold whitespace-nowrap">{game.price}</span>)}</td><td className="px-6 py-4"><div className="flex flex-wrap gap-1">{game.platforms.map(p => (<span key={p} className="bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded text-xs">{p}</span>))}</div></td><td className="px-6 py-4"><a href={game.url} target="_blank" rel="noopener noreferrer" className={`${isWeb ? 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-800' : 'text-blue-600 dark:text-blue-400 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}>{isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}{isWeb ? game.linkName : `Baixar`} <ExternalLink size={10} /></a></td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
-
 // --- APP PRINCIPAL ---
 export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -391,8 +368,11 @@ export default function App() {
       const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) || game.genre.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesPlatform = selectedPlatforms.length === 0 || selectedPlatforms.some(p => game.platforms.includes(p) || (p === 'Web' && game.platforms.includes('Web')) || (p === 'PC' && game.platforms.includes('PC')) || (p === 'Mobile' && game.platforms.includes('Mobile')) || (p === 'Console' && (game.platforms.includes('Console') || game.platforms.includes('Xbox') || game.platforms.includes('Switch'))));
       const matchesStyle = selectedStyles.length === 0 || selectedStyles.includes(game.style);
+      
+      // CORREÇÃO: Aceita "Pago (Sub)" (999) quando o slider está no máximo (300)
       const priceVal = parsePrice(game.price);
-      const matchesPrice = maxPrice === 0 ? priceVal === 0 : priceVal <= maxPrice;
+      const matchesPrice = maxPrice >= 300 ? true : (maxPrice === 0 ? priceVal === 0 : priceVal <= maxPrice);
+      
       return matchesSearch && matchesPlatform && matchesPrice && matchesStyle;
     });
   }, [searchTerm, selectedPlatforms, selectedStyles, maxPrice]);
@@ -424,6 +404,7 @@ export default function App() {
             <div><h1 className="text-2xl font-black text-blue-700 dark:text-blue-400 flex items-center gap-2"><Gamepad2 className="text-blue-600 dark:text-blue-400" /> Galera Gamer 10+</h1><p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Catálogo de jogos com preços e links diretos</p></div>
             
             <div className="flex gap-2 w-full md:w-auto items-center">
+                {/* DARK MODE TOGGLE */}
                 <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-all">
                   {darkMode ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
