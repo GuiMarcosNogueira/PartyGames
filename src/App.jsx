@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink } from 'lucide-react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play } from 'lucide-react';
 
 // DADOS ATUALIZADOS COM PREÇOS EM R$ E LINKS REAIS
 const gamesData = [
@@ -332,56 +332,62 @@ const FilterButton = ({ active, onClick, children, icon: Icon }) => (
   </button>
 );
 
-const GameCard = ({ game }) => (
-  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full animate-fadeIn">
-    <div className="p-5 flex-1">
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-xl font-bold text-gray-800 leading-tight">{game.title}</h3>
-        {game.price === "Grátis" ? (
-          <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">
-            Grátis
-          </span>
-        ) : (
-          <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">
-            {game.price}
-          </span>
-        )}
-      </div>
-      
-      <p className="text-gray-600 text-sm mb-4 line-clamp-3">{game.description}</p>
-      
-      <div className="space-y-2">
-        <div className="flex items-center text-gray-500 text-xs">
-          <Users size={14} className="mr-2 text-blue-500" />
-          <span className="font-semibold text-gray-700 mr-1">Jogadores:</span> {game.players}
+const GameCard = ({ game }) => {
+  const isWeb = game.platforms.includes("Web");
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full animate-fadeIn">
+      <div className="p-5 flex-1">
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-xl font-bold text-gray-800 leading-tight">{game.title}</h3>
+          {game.price === "Grátis" ? (
+            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">
+              Grátis
+            </span>
+          ) : (
+            <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">
+              {game.price}
+            </span>
+          )}
         </div>
-        <div className="flex items-center text-gray-500 text-xs">
-          <Tag size={14} className="mr-2 text-purple-500" />
-          <span className="font-semibold text-gray-700 mr-1">Gênero:</span> {game.genre}
-        </div>
-        <div className="flex items-start text-gray-500 text-xs">
-          <Monitor size={14} className="mr-2 mt-0.5 text-indigo-500 flex-shrink-0" />
-          <div>
-             <span className="font-semibold text-gray-700 mr-1">Plat:</span>
-             {game.platforms.join(", ")}
+        
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{game.description}</p>
+        
+        <div className="space-y-2">
+          <div className="flex items-center text-gray-500 text-xs">
+            <Users size={14} className="mr-2 text-blue-500" />
+            <span className="font-semibold text-gray-700 mr-1">Jogadores:</span> {game.players}
+          </div>
+          <div className="flex items-center text-gray-500 text-xs">
+            <Tag size={14} className="mr-2 text-purple-500" />
+            <span className="font-semibold text-gray-700 mr-1">Gênero:</span> {game.genre}
+          </div>
+          <div className="flex items-start text-gray-500 text-xs">
+            <Monitor size={14} className="mr-2 mt-0.5 text-indigo-500 flex-shrink-0" />
+            <div>
+              <span className="font-semibold text-gray-700 mr-1">Plat:</span>
+              {game.platforms.join(", ")}
+            </div>
           </div>
         </div>
       </div>
+      
+      <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
+        <a 
+          href={game.url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className={`flex items-center justify-center w-full gap-2 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors ${
+            isWeb ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {isWeb ? <Globe size={16} /> : <ShoppingCart size={16} />}
+          {isWeb ? game.linkName : `Baixar na ${game.linkName}`}
+        </a>
+      </div>
     </div>
-    
-    <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
-      <a 
-        href={game.url} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors"
-      >
-        <ShoppingCart size={16} />
-        Baixar na {game.linkName}
-      </a>
-    </div>
-  </div>
-);
+  );
+};
 
 const GamesTable = ({ games }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fadeIn">
@@ -394,41 +400,45 @@ const GamesTable = ({ games }) => (
             <th className="px-6 py-4 font-bold text-gray-800">Preço (BR)</th>
             <th className="px-6 py-4 font-bold text-gray-800">Plataformas</th>
             <th className="px-6 py-4 font-bold text-gray-800">Gênero</th>
-            <th className="px-6 py-4 font-bold text-gray-800">Download</th>
+            <th className="px-6 py-4 font-bold text-gray-800">Ação</th>
           </tr>
         </thead>
         <tbody>
-          {games.map((game, index) => (
-            <tr key={game.id} className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-              <td className="px-6 py-4 font-bold text-gray-800 whitespace-nowrap">{game.title}</td>
-              <td className="px-6 py-4 text-blue-600 font-medium">{game.players}</td>
-              <td className="px-6 py-4">
-                {game.price === "Grátis" ? (
-                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Grátis</span>
-                ) : (
-                  <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold whitespace-nowrap">{game.price}</span>
-                )}
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex flex-wrap gap-1">
-                   {game.platforms.map(p => (
-                     <span key={p} className="bg-gray-100 border border-gray-200 text-gray-600 px-1.5 py-0.5 rounded text-xs">{p}</span>
-                   ))}
-                </div>
-              </td>
-              <td className="px-6 py-4 text-gray-600">{game.genre}</td>
-              <td className="px-6 py-4">
-                <a 
-                  href={game.url}
-                  target="_blank"
-                  rel="noopener noreferrer" 
-                  className="text-blue-600 hover:text-blue-800 font-medium hover:underline flex items-center gap-1"
-                >
-                  {game.linkName} <ExternalLink size={12} />
-                </a>
-              </td>
-            </tr>
-          ))}
+          {games.map((game, index) => {
+            const isWeb = game.platforms.includes("Web");
+            return (
+              <tr key={game.id} className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                <td className="px-6 py-4 font-bold text-gray-800 whitespace-nowrap">{game.title}</td>
+                <td className="px-6 py-4 text-blue-600 font-medium">{game.players}</td>
+                <td className="px-6 py-4">
+                  {game.price === "Grátis" ? (
+                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Grátis</span>
+                  ) : (
+                    <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold whitespace-nowrap">{game.price}</span>
+                  )}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-wrap gap-1">
+                    {game.platforms.map(p => (
+                      <span key={p} className="bg-gray-100 border border-gray-200 text-gray-600 px-1.5 py-0.5 rounded text-xs">{p}</span>
+                    ))}
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-gray-600">{game.genre}</td>
+                <td className="px-6 py-4">
+                  <a 
+                    href={game.url}
+                    target="_blank"
+                    rel="noopener noreferrer" 
+                    className={`${isWeb ? 'text-emerald-600 hover:text-emerald-800' : 'text-blue-600 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}
+                  >
+                    {isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}
+                    {isWeb ? game.linkName : `Baixar na ${game.linkName}`} <ExternalLink size={10} />
+                  </a>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
