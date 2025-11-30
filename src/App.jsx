@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, DollarSign } from 'lucide-react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, DollarSign, Sun, Moon } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
 let allGameImages = {};
@@ -32,7 +32,7 @@ const parsePrice = (priceStr) => {
   if (lower.includes('grátis') || lower.includes('free')) return 0;
   const match = priceStr.match(/(\d+[.,]?\d*)/);
   if (match) return parseFloat(match[0].replace(',', '.'));
-  return 999; // Jogos apenas como "Pago" ou "Assinatura" recebem valor alto
+  return 999; 
 };
 
 const getMaxPlayers = (playerStr) => {
@@ -74,7 +74,7 @@ const gamesData = [
 
   // --- DEDUÇÃO SOCIAL ---
   { id: 5, title: "Among Us", folder: "among-us", players: "4-15", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile", "Console"], price: "R$ 16,99 / Grátis", description: "Descubra o impostor.", linkName: "Steam", url: "https://store.steampowered.com/app/945360/Among_Us/" },
-  { id: 6, title: "Goose Goose Duck", folder: "goose-goose-duck", players: "16+", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "Grátis", description: "Among Us com patos e chat de voz.", linkName: "Steam", url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/" },
+  { id: 6, title: "Goose Goose Duck", folder: "goose-goose-duck", players: "16+", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "Grátis", description: "Among Us com patos e chat de voz embutido. Muito caótico.", linkName: "Steam", url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/" },
   { id: 7, title: "Dale & Dawson", folder: "dale-dawson", players: "Até 21", genre: "Roleplay", style: "Dedução Social", platforms: ["PC"], price: "R$ 26,49", description: "Quem trabalha e quem finge no escritório?", linkName: "Steam", url: "https://store.steampowered.com/app/2920570/Dale__Dawson_Stationery_Supplies/" },
   { id: 8, title: "Lockdown Protocol", folder: "lockdown-protocol", players: "3-8", genre: "Sci-Fi", style: "Dedução Social", platforms: ["PC"], price: "R$ 32,99", description: "Mate os traidores antes que seja tarde.", linkName: "Steam", url: "https://store.steampowered.com/app/2780980/LOCKDOWN_Protocol/" },
   { id: 9, title: "Town of Salem 2", folder: "town-of-salem-2", players: "Até 15", genre: "Estratégia", style: "Dedução Social", platforms: ["PC"], price: "Grátis", description: "Enforque os culpados na vila.", linkName: "Steam", url: "https://store.steampowered.com/app/2140510/Town_of_Salem_2/" },
@@ -322,14 +322,7 @@ const GamesTable = ({ games }) => (
     <div className="overflow-x-auto">
       <table className="w-full text-sm text-left">
         <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700">
-          <tr>
-            <th className="px-6 py-4 font-bold">Jogo</th>
-            <th className="px-6 py-4 font-bold">Estilo</th>
-            <th className="px-6 py-4 font-bold">Jogadores</th>
-            <th className="px-6 py-4 font-bold">Preço (BR)</th>
-            <th className="px-6 py-4 font-bold">Plataformas</th>
-            <th className="px-6 py-4 font-bold">Ação</th>
-          </tr>
+          <tr><th className="px-6 py-4 font-bold">Jogo</th><th className="px-6 py-4 font-bold">Estilo</th><th className="px-6 py-4 font-bold">Jogadores</th><th className="px-6 py-4 font-bold">Preço (BR)</th><th className="px-6 py-4 font-bold">Plataformas</th><th className="px-6 py-4 font-bold">Ação</th></tr>
         </thead>
         <tbody className="text-gray-800 dark:text-gray-200">
           {games.map((game, index) => {
@@ -337,41 +330,7 @@ const GamesTable = ({ games }) => (
             const images = getImagesForGame(game.folder, game.title);
             return (
               <tr key={game.id} className={`border-b border-gray-100 dark:border-zinc-800 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/50 dark:bg-zinc-900/50'}`}>
-                <td className="px-6 py-4 font-bold whitespace-nowrap flex items-center gap-3">
-                  <img src={images[0]} alt="" className="w-10 h-10 rounded object-cover border border-gray-200 dark:border-zinc-700" />
-                  {game.title}
-                </td>
-                <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-zinc-700 text-gray-800 dark:text-gray-200">
-                    {game.style}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-blue-600 dark:text-blue-400 font-medium">{game.players}</td>
-                <td className="px-6 py-4">
-                  {game.price.includes("Grátis") ? (
-                    <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded text-xs font-bold">Grátis</span>
-                  ) : (
-                    <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold whitespace-nowrap">{game.price}</span>
-                  )}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex flex-wrap gap-1">
-                    {game.platforms.map(p => (
-                      <span key={p} className="bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded text-xs">{p}</span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <a 
-                    href={game.url}
-                    target="_blank"
-                    rel="noopener noreferrer" 
-                    className={`${isWeb ? 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-800' : 'text-blue-600 dark:text-blue-400 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}
-                  >
-                    {isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}
-                    {isWeb ? game.linkName : `Baixar`} <ExternalLink size={10} />
-                  </a>
-                </td>
+                <td className="px-6 py-4 font-bold whitespace-nowrap flex items-center gap-3"><img src={images[0]} alt="" className="w-10 h-10 rounded object-cover border border-gray-200 dark:border-zinc-700" />{game.title}</td><td className="px-6 py-4 text-gray-600 dark:text-gray-400"><span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-zinc-700 text-gray-800 dark:text-gray-200">{game.style}</span></td><td className="px-6 py-4 text-blue-600 dark:text-blue-400 font-medium">{game.players}</td><td className="px-6 py-4">{game.price.includes("Grátis") ? (<span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded text-xs font-bold">Grátis</span>) : (<span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold whitespace-nowrap">{game.price}</span>)}</td><td className="px-6 py-4"><div className="flex flex-wrap gap-1">{game.platforms.map(p => (<span key={p} className="bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded text-xs">{p}</span>))}</div></td><td className="px-6 py-4"><a href={game.url} target="_blank" rel="noopener noreferrer" className={`${isWeb ? 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-800' : 'text-blue-600 dark:text-blue-400 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}>{isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}{isWeb ? game.linkName : `Baixar`} <ExternalLink size={10} /></a></td>
               </tr>
             );
           })}
