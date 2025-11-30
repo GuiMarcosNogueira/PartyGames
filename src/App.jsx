@@ -1,12 +1,48 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play } from 'lucide-react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// DADOS ATUALIZADOS COM PREÇOS EM R$ E LINKS REAIS
+// --- AUTOMAÇÃO DE IMAGENS ---
+// O comando 'import.meta.glob' requer target: 'es2020' ou superior.
+// Como o ambiente atual está configurado para ES2015, vamos desativar a automação para evitar erros de compilação.
+// Se você atualizar o vite.config.js para 'es2020', pode descomentar o bloco abaixo.
+
+
+const allGameImages = import.meta.glob('/src/assets/games/!**!/!*.{png,jpg,jpeg,webp,gif}', {
+  eager: true,
+  import: 'default',
+  query: '?url'
+});
+
+
+// Fallback seguro para ambientes ES2015:
+//const allGameImages = {};
+
+// Função inteligente que busca imagens na pasta correta ou gera placeholders
+const getImagesForGame = (folderName, gameTitle) => {
+  // 1. Filtra as imagens que pertencem à pasta deste jogo
+  const images = Object.keys(allGameImages)
+    .filter((path) => path.includes(`/src/assets/games/${folderName}/`))
+    .map((path) => allGameImages[path]);
+
+  // 2. Se achou imagens reais (arquivos locais), retorna elas
+  if (images.length > 0) {
+    return images;
+  }
+
+  // 3. Fallback: Se a pasta estiver vazia ou automação desligada, gera placeholders
+  return [
+    `https://placehold.co/600x350/2563eb/ffffff?text=${encodeURIComponent(gameTitle)}+Gameplay`,
+    `https://placehold.co/600x350/1e40af/ffffff?text=${encodeURIComponent(gameTitle)}+Lobby`,
+    `https://placehold.co/600x350/172554/ffffff?text=${encodeURIComponent(gameTitle)}+Win`
+  ];
+};
+
 const gamesData = [
-  // 1. Party Games & Battle Royales
+  // --- PARTY GAMES ---
   {
     id: 1,
     title: "Fall Guys",
+    folder: "fall-guys",
     players: "Até 60 (Custom: 40+)",
     genre: "Party / Battle Royale",
     platforms: ["PC", "Console", "Switch"],
@@ -18,6 +54,7 @@ const gamesData = [
   {
     id: 2,
     title: "Stumble Guys",
+    folder: "stumble-guys",
     players: "Até 32",
     genre: "Party / Battle Royale",
     platforms: ["PC", "Mobile", "Console"],
@@ -29,6 +66,7 @@ const gamesData = [
   {
     id: 3,
     title: "Pico Park",
+    folder: "pico-park",
     players: "Até 8 (Oficial)",
     genre: "Puzzle Cooperativo",
     platforms: ["PC", "Switch"],
@@ -40,6 +78,7 @@ const gamesData = [
   {
     id: 4,
     title: "Crab Game",
+    folder: "crab-game",
     players: "Até 40",
     genre: "Survival / Minigames",
     platforms: ["PC"],
@@ -48,10 +87,12 @@ const gamesData = [
     linkName: "Steam",
     url: "https://store.steampowered.com/app/1782210/Crab_Game/"
   },
-  // 2. Dedução Social
+  
+  // --- DEDUÇÃO SOCIAL ---
   {
     id: 5,
     title: "Among Us",
+    folder: "among-us",
     players: "4-15",
     genre: "Dedução Social",
     platforms: ["PC", "Mobile", "Console"],
@@ -63,6 +104,7 @@ const gamesData = [
   {
     id: 6,
     title: "Goose Goose Duck",
+    folder: "goose-goose-duck",
     players: "16+",
     genre: "Dedução Social",
     platforms: ["PC", "Mobile"],
@@ -74,6 +116,7 @@ const gamesData = [
   {
     id: 7,
     title: "Dale & Dawson Stationery",
+    folder: "dale-dawson",
     players: "Até 21",
     genre: "Roleplay / Dedução",
     platforms: ["PC"],
@@ -85,6 +128,7 @@ const gamesData = [
   {
     id: 8,
     title: "Lockdown Protocol",
+    folder: "lockdown-protocol",
     players: "3-8 (Mods para mais)",
     genre: "Dedução / Sci-Fi",
     platforms: ["PC"],
@@ -96,6 +140,7 @@ const gamesData = [
   {
     id: 9,
     title: "Town of Salem 2",
+    folder: "town-of-salem-2",
     players: "Até 15",
     genre: "Dedução / Lógica",
     platforms: ["PC"],
@@ -107,6 +152,7 @@ const gamesData = [
   {
     id: 27,
     title: "Feign",
+    folder: "feign",
     players: "4-12",
     genre: "Dedução",
     platforms: ["PC", "Mobile"],
@@ -115,10 +161,12 @@ const gamesData = [
     linkName: "Steam",
     url: "https://store.steampowered.com/app/1436990/Feign/"
   },
-  // 3. Sobrevivência e Sandbox
+
+  // --- SOBREVIVÊNCIA ---
   {
     id: 10,
     title: "Minecraft",
+    folder: "minecraft",
     players: "Ilimitado (Servidor)",
     genre: "Sandbox",
     platforms: ["Todas"],
@@ -130,6 +178,7 @@ const gamesData = [
   {
     id: 11,
     title: "Lethal Company",
+    folder: "lethal-company",
     players: "4 (Mods: até 32+)",
     genre: "Terror Coop",
     platforms: ["PC"],
@@ -141,6 +190,7 @@ const gamesData = [
   {
     id: 12,
     title: "Content Warning",
+    folder: "content-warning",
     players: "4 (Mods: 16+)",
     genre: "Terror / Youtuber",
     platforms: ["PC"],
@@ -152,6 +202,7 @@ const gamesData = [
   {
     id: 13,
     title: "Valheim",
+    folder: "valheim",
     players: "1-10",
     genre: "Sobrevivência Viking",
     platforms: ["PC", "Xbox"],
@@ -163,6 +214,7 @@ const gamesData = [
   {
     id: 14,
     title: "Don't Starve Together",
+    folder: "dont-starve",
     players: "1-6 (Mods: Mais)",
     genre: "Sobrevivência",
     platforms: ["PC", "Console"],
@@ -174,6 +226,7 @@ const gamesData = [
   {
     id: 15,
     title: "Project Zomboid",
+    folder: "project-zomboid",
     players: "Até 32+",
     genre: "Simulador Zumbi",
     platforms: ["PC"],
@@ -185,6 +238,7 @@ const gamesData = [
   {
     id: 28,
     title: "Barotrauma",
+    folder: "barotrauma",
     players: "Até 16",
     genre: "Simulador Submarino",
     platforms: ["PC"],
@@ -193,10 +247,12 @@ const gamesData = [
     linkName: "Steam",
     url: "https://store.steampowered.com/app/602960/Barotrauma/"
   },
-  // 4. Navegador (Web)
+  
+  // --- NAVEGADOR ---
   {
     id: 16,
     title: "Gartic Phone",
+    folder: "gartic-phone",
     players: "Até 30",
     genre: "Desenho / Casual",
     platforms: ["Web"],
@@ -208,6 +264,7 @@ const gamesData = [
   {
     id: 17,
     title: "JKLM.fun",
+    folder: "jklm",
     players: "16+",
     genre: "Palavras / Party",
     platforms: ["Web"],
@@ -219,6 +276,7 @@ const gamesData = [
   {
     id: 18,
     title: "Make It Meme",
+    folder: "make-it-meme",
     players: "Até 15",
     genre: "Criatividade",
     platforms: ["Web"],
@@ -230,6 +288,7 @@ const gamesData = [
   {
     id: 19,
     title: "Board Game Arena",
+    folder: "board-game-arena",
     players: "Varia (Até 12)",
     genre: "Jogos de Tabuleiro",
     platforms: ["Web"],
@@ -241,6 +300,7 @@ const gamesData = [
   {
     id: 20,
     title: "StopotS",
+    folder: "stopots",
     players: "Ilimitado",
     genre: "Palavras / Stop",
     platforms: ["Web", "Mobile"],
@@ -252,6 +312,7 @@ const gamesData = [
   {
     id: 21,
     title: "Codenames Online",
+    folder: "codenames",
     players: "Ilimitado",
     genre: "Palavras / Times",
     platforms: ["Web"],
@@ -260,10 +321,12 @@ const gamesData = [
     linkName: "Jogar Agora",
     url: "https://codenames.game"
   },
-  // 5. Shooters e Ação
+
+  // --- SHOOTERS ---
   {
     id: 22,
     title: "Team Fortress 2",
+    folder: "tf2",
     players: "Até 32",
     genre: "FPS de Classe",
     platforms: ["PC"],
@@ -275,6 +338,7 @@ const gamesData = [
   {
     id: 23,
     title: "Sven Co-op",
+    folder: "sven-coop",
     players: "Até 32",
     genre: "FPS Cooperativo",
     platforms: ["PC"],
@@ -286,6 +350,7 @@ const gamesData = [
   {
     id: 24,
     title: "Halo Infinite",
+    folder: "halo-infinite",
     players: "Até 28 (Custom)",
     genre: "FPS Arena",
     platforms: ["PC", "Xbox"],
@@ -297,6 +362,7 @@ const gamesData = [
   {
     id: 25,
     title: "Unfortunate Spacemen",
+    folder: "unfortunate-spacemen",
     players: "Até 16",
     genre: "FPS / Terror",
     platforms: ["PC"],
@@ -308,6 +374,7 @@ const gamesData = [
   {
     id: 26,
     title: "Unturned",
+    folder: "unturned",
     players: "Até 24+",
     genre: "Sobrevivência / FPS",
     platforms: ["PC"],
@@ -334,10 +401,65 @@ const FilterButton = ({ active, onClick, children, icon: Icon }) => (
 
 const GameCard = ({ game }) => {
   const isWeb = game.platforms.includes("Web");
+  const images = useMemo(() => getImagesForGame(game.folder, game.title), [game.folder, game.title]);
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+
+  const nextImage = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImgIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImgIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 overflow-hidden flex flex-col h-full animate-fadeIn">
-      <div className="p-5 flex-1">
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 overflow-hidden flex flex-col h-full animate-fadeIn group">
+      {/* Área da Imagem (Carrossel) */}
+      <div className="relative h-48 w-full bg-gray-200 overflow-hidden">
+        <img 
+          src={images[currentImgIndex]} 
+          alt={`${game.title} screenshot`}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+        />
+        
+        {/* Botões de Navegação (Só aparecem no hover e se tiver mais de 1 imagem) */}
+        {images.length > 1 && (
+          <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <button 
+              onClick={prevImage}
+              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-sm"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button 
+              onClick={nextImage}
+              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-sm"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+
+        {/* Indicadores (Bolinhas) */}
+        {images.length > 1 && (
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
+            {images.map((_, idx) => (
+              <div 
+                key={idx} 
+                className={`w-1.5 h-1.5 rounded-full shadow-sm transition-all ${
+                  idx === currentImgIndex ? 'bg-white scale-110' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="p-5 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-bold text-gray-800 leading-tight">{game.title}</h3>
           {game.price === "Grátis" ? (
@@ -351,9 +473,9 @@ const GameCard = ({ game }) => {
           )}
         </div>
         
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{game.description}</p>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">{game.description}</p>
         
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <div className="flex items-center text-gray-500 text-xs">
             <Users size={14} className="mr-2 text-blue-500" />
             <span className="font-semibold text-gray-700 mr-1">Jogadores:</span> {game.players}
@@ -370,18 +492,16 @@ const GameCard = ({ game }) => {
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
+
         <a 
           href={game.url} 
           target="_blank" 
           rel="noopener noreferrer"
-          className={`flex items-center justify-center w-full gap-2 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors ${
+          className={`flex items-center justify-center w-full gap-2 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors mt-auto ${
             isWeb ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
-          {isWeb ? <Globe size={16} /> : <ShoppingCart size={16} />}
+          {isWeb ? <Play size={16} /> : <ShoppingCart size={16} />}
           {isWeb ? game.linkName : `Baixar na ${game.linkName}`}
         </a>
       </div>
@@ -406,9 +526,14 @@ const GamesTable = ({ games }) => (
         <tbody>
           {games.map((game, index) => {
             const isWeb = game.platforms.includes("Web");
+            const images = getImagesForGame(game.folder, game.title);
+            
             return (
               <tr key={game.id} className={`border-b border-gray-100 hover:bg-blue-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                <td className="px-6 py-4 font-bold text-gray-800 whitespace-nowrap">{game.title}</td>
+                <td className="px-6 py-4 font-bold text-gray-800 whitespace-nowrap flex items-center gap-3">
+                  <img src={images[0]} alt="" className="w-10 h-10 rounded object-cover border border-gray-200" />
+                  {game.title}
+                </td>
                 <td className="px-6 py-4 text-blue-600 font-medium">{game.players}</td>
                 <td className="px-6 py-4">
                   {game.price === "Grátis" ? (
@@ -433,7 +558,7 @@ const GamesTable = ({ games }) => (
                     className={`${isWeb ? 'text-emerald-600 hover:text-emerald-800' : 'text-blue-600 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}
                   >
                     {isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}
-                    {isWeb ? game.linkName : `Baixar na ${game.linkName}`} <ExternalLink size={10} />
+                    {isWeb ? game.linkName : `Baixar`} <ExternalLink size={10} />
                   </a>
                 </td>
               </tr>
