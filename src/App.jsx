@@ -2,10 +2,13 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
-// PARA O SEU SERVIDOR ES2020: Descomente o bloco abaixo.
-// (Mantive comentado aqui apenas para evitar erro no visualizador do chat)
 
-let allGameImages = {}; 
+// 1. Inicializa como vazio (Fallback para este preview ou caso não ache imagens)
+let allGameImages = {};
+
+// 2. NO SEU SERVIDOR (Vite/Vercel):
+// Apenas remova as barras (//) das linhas abaixo.
+// Observe que não tem 'const' ou 'let' antes, ele apenas atualiza a variável acima.
 
 allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
   eager: true,
@@ -13,19 +16,16 @@ allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}
   query: '?url'
 });
 
-// Função inteligente que busca imagens na pasta correta
+
+// Função para buscar imagens
 const getImagesForGame = (folderName, gameTitle) => {
-  // 1. Tenta filtrar as imagens reais (quando a automação estiver ativa)
   const images = Object.keys(allGameImages)
     .filter((path) => path.includes(`/${folderName}/`))
     .map((path) => allGameImages[path]);
 
-  // 2. Se achou imagens reais, retorna elas
-  if (images.length > 0) {
-    return images;
-  }
+  if (images.length > 0) return images;
 
-  // 3. Fallback: Placeholders
+  // Fallback Placeholders
   return [
     `https://placehold.co/1920x1080/2563eb/ffffff?text=${encodeURIComponent(gameTitle)}+Gameplay`,
     `https://placehold.co/1920x1080/1e40af/ffffff?text=${encodeURIComponent(gameTitle)}+Lobby`,
@@ -69,31 +69,109 @@ const gamesData = [
   { id: 26, title: "Unturned", folder: "unturned", players: "Até 24+", genre: "Sobrevivência / FPS", platforms: ["PC"], price: "Grátis", description: "Sobrevivência zumbi com visual simples (blocos).", linkName: "Steam", url: "https://store.steampowered.com/app/304930/Unturned/" }
 ];
 
-// --- COMPONENTE: MODAL FULLSCREEN ---
-const ImageModal = ({ isOpen, imageUrl, onClose }) => {
-  if (!isOpen || !imageUrl) return null;
+// --- COMPONENTE: MODAL FULLSCREEN COM CARROSSEL ---
+const ImageModal = ({ isOpen, images, startIndex, onClose }) => {
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+
+  // Sincroniza o índice quando abre ou muda a imagem inicial
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentIndex(startIndex);
+    }
+  }, [isOpen, startIndex]);
+
+  // Controle por Teclado
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') nextImage(e);
+      if (e.key === 'ArrowLeft') prevImage(e);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, currentIndex]);
+
+  if (!isOpen || !images || images.length === 0) return null;
+
+  const nextImage = (e) => {
+    e?.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e) => {
+    e?.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
-    // Overlay Escuro (Fundo)
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-fadeIn"
-      onClick={onClose} // Fecha ao clicar no fundo
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm animate-fadeIn"
+      onClick={onClose}
     >
-      {/* Botão de Fechar */}
+      {/* Botão Fechar */}
       <button 
         onClick={onClose}
-        className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-all z-50"
+        className="absolute top-4 right-4 z-50 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-md"
       >
-        <X size={32} />
+        <X size={28} />
       </button>
 
-      {/* Imagem (Clicar nela NÃO fecha) */}
-      <img 
-        src={imageUrl} 
-        alt="Full screen view" 
-        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl scale-100 animate-scaleIn"
-        onClick={(e) => e.stopPropagation()} // Impede que o clique na imagem feche o modal
-      />
+      {/* Contador */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-white/80 text-sm font-medium bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm select-none">
+        {currentIndex + 1} / {images.length}
+      </div>
+
+      {/* Botão Anterior */}
+      {images.length > 1 && (
+        <button 
+          onClick={prevImage}
+          className="absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all backdrop-blur-md hover:scale-110 z-50"
+        >
+          <ChevronLeft size={32} />
+        </button>
+      )}
+
+      {/* Imagem Principal */}
+      <div 
+        className="relative w-full h-full max-w-7xl max-h-[90vh] flex items-center justify-center p-4 md:p-8"
+        onClick={(e) => e.stopPropagation()} 
+      >
+        <img 
+          src={images[currentIndex]} 
+          alt={`Full view ${currentIndex}`} 
+          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-scaleIn select-none"
+        />
+      </div>
+
+      {/* Botão Próximo */}
+      {images.length > 1 && (
+        <button 
+          onClick={nextImage}
+          className="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all backdrop-blur-md hover:scale-110 z-50"
+        >
+          <ChevronRight size={32} />
+        </button>
+      )}
+
+      {/* Miniaturas no Rodapé */}
+      {images.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 overflow-x-auto max-w-full px-4 py-2 z-50" onClick={(e) => e.stopPropagation()}>
+          {images.map((img, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`w-12 h-12 md:w-16 md:h-16 rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
+                idx === currentIndex ? 'border-white scale-110 opacity-100' : 'border-transparent opacity-50 hover:opacity-80'
+              }`}
+            >
+              <img src={img} alt="thumb" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -131,10 +209,10 @@ const GameCard = ({ game, onImageClick }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 overflow-hidden flex flex-col h-full animate-fadeIn group">
-      {/* Área da Imagem (Carrossel) */}
+      {/* Área da Imagem (Carrossel Interno) */}
       <div 
         className="relative h-48 w-full bg-gray-200 overflow-hidden cursor-zoom-in"
-        onClick={() => onImageClick(images[currentImgIndex])} // Abre o Modal
+        onClick={() => onImageClick(images, currentImgIndex)} 
       >
         <img 
           src={images[currentImgIndex]} 
@@ -142,25 +220,19 @@ const GameCard = ({ game, onImageClick }) => {
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
         
-        {/* Botões de Navegação (Só aparecem no hover e se tiver mais de 1 imagem) */}
+        {/* Navegação Interna */}
         {images.length > 1 && (
           <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-            <button 
-              onClick={prevImage}
-              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-sm"
-            >
+            <button onClick={prevImage} className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm">
               <ChevronLeft size={20} />
             </button>
-            <button 
-              onClick={nextImage}
-              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors backdrop-blur-sm"
-            >
+            <button onClick={nextImage} className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm">
               <ChevronRight size={20} />
             </button>
           </div>
         )}
 
-        {/* Indicadores (Bolinhas) */}
+        {/* Indicadores */}
         {images.length > 1 && (
           <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
             {images.map((_, idx) => (
@@ -179,44 +251,21 @@ const GameCard = ({ game, onImageClick }) => {
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-xl font-bold text-gray-800 leading-tight">{game.title}</h3>
           {game.price.includes("Grátis") ? (
-            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">
-              Grátis
-            </span>
+            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">Grátis</span>
           ) : (
-            <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">
-              {game.price}
-            </span>
+            <span className="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">{game.price}</span>
           )}
         </div>
         
         <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">{game.description}</p>
         
         <div className="space-y-2 mb-4">
-          <div className="flex items-center text-gray-500 text-xs">
-            <Users size={14} className="mr-2 text-blue-500" />
-            <span className="font-semibold text-gray-700 mr-1">Jogadores:</span> {game.players}
-          </div>
-          <div className="flex items-center text-gray-500 text-xs">
-            <Tag size={14} className="mr-2 text-purple-500" />
-            <span className="font-semibold text-gray-700 mr-1">Gênero:</span> {game.genre}
-          </div>
-          <div className="flex items-start text-gray-500 text-xs">
-            <Monitor size={14} className="mr-2 mt-0.5 text-indigo-500 flex-shrink-0" />
-            <div>
-              <span className="font-semibold text-gray-700 mr-1">Plat:</span>
-              {game.platforms.join(", ")}
-            </div>
-          </div>
+          <div className="flex items-center text-gray-500 text-xs"><Users size={14} className="mr-2 text-blue-500" /><span className="font-semibold text-gray-700 mr-1">Jogadores:</span> {game.players}</div>
+          <div className="flex items-center text-gray-500 text-xs"><Tag size={14} className="mr-2 text-purple-500" /><span className="font-semibold text-gray-700 mr-1">Gênero:</span> {game.genre}</div>
+          <div className="flex items-start text-gray-500 text-xs"><Monitor size={14} className="mr-2 mt-0.5 text-indigo-500 flex-shrink-0" /><div><span className="font-semibold text-gray-700 mr-1">Plat:</span>{game.platforms.join(", ")}</div></div>
         </div>
 
-        <a 
-          href={game.url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className={`flex items-center justify-center w-full gap-2 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors mt-auto ${
-            isWeb ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'
-          }`}
-        >
+        <a href={game.url} target="_blank" rel="noopener noreferrer" className={`flex items-center justify-center w-full gap-2 text-white text-sm font-bold py-2 px-4 rounded-lg transition-colors mt-auto ${isWeb ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
           {isWeb ? <Play size={16} /> : <ShoppingCart size={16} />}
           {isWeb ? game.linkName : `Baixar na ${game.linkName}`}
         </a>
@@ -267,12 +316,7 @@ const GamesTable = ({ games }) => (
                 </td>
                 <td className="px-6 py-4 text-gray-600">{game.genre}</td>
                 <td className="px-6 py-4">
-                  <a 
-                    href={game.url}
-                    target="_blank"
-                    rel="noopener noreferrer" 
-                    className={`${isWeb ? 'text-emerald-600 hover:text-emerald-800' : 'text-blue-600 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}
-                  >
+                  <a href={game.url} target="_blank" rel="noopener noreferrer" className={`${isWeb ? 'text-emerald-600 hover:text-emerald-800' : 'text-blue-600 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}>
                     {isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}
                     {isWeb ? game.linkName : `Baixar`} <ExternalLink size={10} />
                   </a>
@@ -291,33 +335,35 @@ export default function App() {
   const [platformFilter, setPlatformFilter] = useState("Todas");
   const [priceFilter, setPriceFilter] = useState("Todos");
   const [viewMode, setViewMode] = useState("grid");
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [modalData, setModalData] = useState(null);
 
   const filteredGames = useMemo(() => {
     return gamesData.filter(game => {
       const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                             game.genre.toLowerCase().includes(searchTerm.toLowerCase());
-      
       const matchesPlatform = platformFilter === "Todas" || 
         (platformFilter === "Web" && game.platforms.includes("Web")) ||
         (platformFilter === "Mobile" && game.platforms.includes("Mobile")) ||
         (platformFilter === "Console" && (game.platforms.includes("Console") || game.platforms.includes("Xbox") || game.platforms.includes("Switch")));
-
       const matchesPrice = priceFilter === "Todos" || 
         (priceFilter === "Grátis" && game.price.includes("Grátis")) ||
         (priceFilter === "Pago" && !game.price.includes("Grátis"));
-
       return matchesSearch && matchesPlatform && matchesPrice;
     });
   }, [searchTerm, platformFilter, priceFilter]);
+
+  const handleOpenModal = (images, index) => {
+    setModalData({ images, startIndex: index });
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-gray-800">
       
       <ImageModal 
-        isOpen={!!selectedImage} 
-        imageUrl={selectedImage} 
-        onClose={() => setSelectedImage(null)} 
+        isOpen={!!modalData} 
+        images={modalData?.images || []}
+        startIndex={modalData?.startIndex || 0}
+        onClose={() => setModalData(null)} 
       />
 
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
@@ -335,31 +381,13 @@ export default function App() {
             
             <div className="flex gap-2 w-full md:w-auto">
                 <div className="relative flex-1 md:w-80">
-                  <input
-                    type="text"
-                    placeholder="Buscar jogo..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
-                  />
+                  <input type="text" placeholder="Buscar jogo..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none" />
                   <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
                 </div>
                 
                 <div className="flex bg-gray-100 rounded-lg p-1 gap-1">
-                   <button 
-                     onClick={() => setViewMode('grid')}
-                     className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                     title="Visualização em Cards"
-                   >
-                     <Grid size={20} />
-                   </button>
-                   <button 
-                     onClick={() => setViewMode('table')}
-                     className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-white shadow text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                     title="Visualização em Tabela"
-                   >
-                     <List size={20} />
-                   </button>
+                   <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow text-blue-600' : 'text-gray-400 hover:text-gray-600'}`} title="Visualização em Cards"><Grid size={20} /></button>
+                   <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-white shadow text-blue-600' : 'text-gray-400 hover:text-gray-600'}`} title="Visualização em Tabela"><List size={20} /></button>
                 </div>
             </div>
           </div>
@@ -392,7 +420,7 @@ export default function App() {
                   <GameCard 
                     key={game.id} 
                     game={game} 
-                    onImageClick={(imgUrl) => setSelectedImage(imgUrl)} 
+                    onImageClick={handleOpenModal} 
                   />
                 ))}
               </div>
