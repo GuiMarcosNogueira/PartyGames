@@ -8,11 +8,11 @@ import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart,
 // Fallback para o preview do chat (Substitua por {} se descomentar acima)
 const allGameImages = {}; 
 
-//const allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
-//  eager: true,
-//  import: 'default',
-//  query: '?url'
-//});
+const allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
+  eager: true,
+  import: 'default',
+  query: '?url'
+});
 
 // Função inteligente que busca imagens na pasta correta
 const getImagesForGame = (folderName, gameTitle) => {
