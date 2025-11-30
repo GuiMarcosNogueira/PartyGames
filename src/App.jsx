@@ -74,7 +74,7 @@ const gamesData = [
 
   // --- DEDUÇÃO SOCIAL ---
   { id: 5, title: "Among Us", folder: "among-us", players: "4-15", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile", "Console"], price: "R$ 16,99 / Grátis", description: "Descubra o impostor.", linkName: "Steam", url: "https://store.steampowered.com/app/945360/Among_Us/" },
-  { id: 6, title: "Goose Goose Duck", folder: "goose-goose-duck", players: "16+", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "Grátis", description: "Among Us com patos e chat de voz embutido. Muito caótico.", linkName: "Steam", url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/" },
+  { id: 6, title: "Goose Goose Duck", folder: "goose-goose-duck", players: "16+", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "Grátis", description: "Among Us com patos e chat de voz.", linkName: "Steam", url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/" },
   { id: 7, title: "Dale & Dawson", folder: "dale-dawson", players: "Até 21", genre: "Roleplay", style: "Dedução Social", platforms: ["PC"], price: "R$ 26,49", description: "Quem trabalha e quem finge no escritório?", linkName: "Steam", url: "https://store.steampowered.com/app/2920570/Dale__Dawson_Stationery_Supplies/" },
   { id: 8, title: "Lockdown Protocol", folder: "lockdown-protocol", players: "3-8", genre: "Sci-Fi", style: "Dedução Social", platforms: ["PC"], price: "R$ 32,99", description: "Mate os traidores antes que seja tarde.", linkName: "Steam", url: "https://store.steampowered.com/app/2780980/LOCKDOWN_Protocol/" },
   { id: 9, title: "Town of Salem 2", folder: "town-of-salem-2", players: "Até 15", genre: "Estratégia", style: "Dedução Social", platforms: ["PC"], price: "Grátis", description: "Enforque os culpados na vila.", linkName: "Steam", url: "https://store.steampowered.com/app/2140510/Town_of_Salem_2/" },
@@ -225,7 +225,12 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
       if (filters.playerCount === 'Pequeno') matchPlayers = maxP <= 8;
       if (filters.playerCount === 'Médio') matchPlayers = maxP >= 8 && maxP <= 16;
       if (filters.playerCount === 'Grande') matchPlayers = maxP > 16;
-      return matchPlat && matchPrice && matchStyle && matchPlayers;
+      
+      // CORREÇÃO: Aceita 999 (jogos caros/assinatura) quando o slider é 300 (Ilimitado)
+      const priceVal = parsePrice(game.price);
+      const matchSlider = maxPrice >= 300 ? true : (maxPrice === 0 ? priceVal === 0 : priceVal <= maxPrice);
+
+      return matchPlat && matchPrice && matchStyle && matchPlayers && matchSlider;
     });
     setFilteredList(result);
     setStep('roulette');
@@ -245,6 +250,16 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
               <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Estilos (Vazio = Todos)</label><div className="flex flex-wrap gap-2">{['Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival', 'MMO'].map(opt => (<button key={opt} onClick={() => toggleSelection(filters.style, (v) => setFilters({...filters, style: v}), opt)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.style.includes(opt) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>{opt}</button>))}</div></div>
               <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Tamanho do Grupo</label><div className="flex flex-wrap gap-2">{[{l:'Qualquer',v:'Qualquer'},{l:'Pequeno (até 8)',v:'Pequeno'},{l:'Médio (8-16)',v:'Médio'},{l:'Grande (17+)',v:'Grande'}].map(opt => (<button key={opt.v} onClick={() => setFilters({...filters, playerCount: opt.v})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.playerCount === opt.v ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>{opt.l}</button>))}</div></div>
               <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Plataformas</label><div className="flex flex-wrap gap-2">{['PC', 'Web', 'Mobile', 'Console'].map(p => (<button key={p} onClick={() => toggleSelection(filters.platform, (v) => setFilters({...filters, platform: v}), p)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.platform.includes(p) ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>{p}</button>))}</div></div>
+              {/* SLIDER DE PREÇO NO MODAL */}
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Preço Máximo</label>
+                  <span className="text-sm font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
+                    {maxPrice === 0 ? "Apenas Grátis" : maxPrice >= 300 ? "Qualquer Valor" : `Até R$ ${maxPrice},00`}
+                  </span>
+                </div>
+                <input type="range" min="0" max="300" step="10" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="w-full h-2 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+              </div>
             </div>
             <button onClick={applyFilters} className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg transition-colors shadow-lg">Continuar para Roleta</button>
           </div>
