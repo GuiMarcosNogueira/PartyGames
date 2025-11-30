@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, DollarSign } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
@@ -26,21 +26,18 @@ const getImagesForGame = (folderName, gameTitle) => {
 };
 
 // --- HELPER FUNCTIONS ---
-
-// Extrai valor numérico do preço
 const parsePrice = (priceStr) => {
   if (!priceStr) return 999;
   const lower = priceStr.toLowerCase();
   if (lower.includes('grátis') || lower.includes('free')) return 0;
-  // Pega o primeiro número encontrado, substitui vírgula por ponto
   const match = priceStr.match(/(\d+[.,]?\d*)/);
   if (match) return parseFloat(match[0].replace(',', '.'));
-  return 999; // Se não achar número e não for grátis, joga pro alto (ex: "Pago")
+  return 999; 
 };
 
 const getMaxPlayers = (playerStr) => {
   if (typeof playerStr !== 'string') return 0;
-  if (playerStr.toLowerCase().includes('ilimitado') || playerStr.toLowerCase().includes('mmo')) return 999;
+  if (playerStr.toLowerCase().includes('ilimitado') || playerStr.toLowerCase().includes('mmo') || playerStr.toLowerCase().includes('massivo')) return 999;
   const numbers = playerStr.match(/(\d+)/g);
   if (!numbers) return 0;
   return Math.max(...numbers.map(Number));
@@ -62,10 +59,10 @@ const getStyleIcon = (style) => {
 
 const gamesData = [
   // --- PARTY & CASUAL ---
-  { id: 1, title: "Fall Guys", folder: "fall-guys", players: "Até 60", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Console", "Switch"], price: "Grátis", description: "Gincanas caóticas com jujubas. Obrigatório para grupos grandes.", linkName: "Epic Games", url: "https://store.epicgames.com/pt-BR/p/fall-guys" },
-  { id: 2, title: "Stumble Guys", folder: "stumble-guys", players: "Até 32", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Mobile", "Console"], price: "Grátis", description: "A versão leve do Fall Guys. Roda em qualquer celular e PC.", linkName: "Steam", url: "https://store.steampowered.com/app/1677740/Stumble_Guys/" },
-  { id: 3, title: "Pico Park", folder: "pico-park", players: "2-8", genre: "Puzzle", style: "Cooperativo", platforms: ["PC", "Switch"], price: "R$ 16,99", description: "Teste de amizade. Coordenação total ou caos absoluto.", linkName: "Steam", url: "https://store.steampowered.com/app/1509960/PICO_PARK/" },
-  { id: 4, title: "Crab Game", folder: "crab-game", players: "Até 40", genre: "Survival", style: "Competitivo", platforms: ["PC"], price: "Grátis", description: "Inspirado em Round 6. Chat de proximidade é a alma do jogo.", linkName: "Steam", url: "https://store.steampowered.com/app/1782210/Crab_Game/" },
+  { id: 1, title: "Fall Guys", folder: "fall-guys", players: "Até 60", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Console", "Switch"], price: "Grátis", description: "Gincanas caóticas com jujubas.", linkName: "Epic Games", url: "https://store.epicgames.com/pt-BR/p/fall-guys" },
+  { id: 2, title: "Stumble Guys", folder: "stumble-guys", players: "Até 32", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Mobile", "Console"], price: "Grátis", description: "Versão leve do Fall Guys.", linkName: "Steam", url: "https://store.steampowered.com/app/1677740/Stumble_Guys/" },
+  { id: 3, title: "Pico Park", folder: "pico-park", players: "2-8", genre: "Puzzle", style: "Cooperativo", platforms: ["PC", "Switch"], price: "R$ 16,99", description: "Teste de amizade. Coordenação total ou caos.", linkName: "Steam", url: "https://store.steampowered.com/app/1509960/PICO_PARK/" },
+  { id: 4, title: "Crab Game", folder: "crab-game", players: "Até 40", genre: "Survival", style: "Competitivo", platforms: ["PC"], price: "Grátis", description: "Inspirado em Round 6 com chat de voz.", linkName: "Steam", url: "https://store.steampowered.com/app/1782210/Crab_Game/" },
   { id: 30, title: "Gang Beasts", folder: "gang-beasts", players: "4-8", genre: "Luta / Physics", style: "Competitivo", platforms: ["PC", "Console"], price: "R$ 36,99", description: "Bonecos de gelatina brigando em cenários perigosos.", linkName: "Steam", url: "https://store.steampowered.com/app/285900/Gang_Beasts/" },
   { id: 31, title: "Human: Fall Flat", folder: "human-fall-flat", players: "Até 8", genre: "Puzzle / Physics", style: "Cooperativo", platforms: ["PC", "Console", "Mobile"], price: "R$ 37,99", description: "Resolva puzzles com física desengonçada.", linkName: "Steam", url: "https://store.steampowered.com/app/477160/Human_Fall_Flat/" },
   { id: 32, title: "Overcooked! 2", folder: "overcooked-2", players: "4", genre: "Simulador", style: "Cooperativo", platforms: ["PC", "Console"], price: "R$ 59,90", description: "Cozinhe sob pressão extrema sem incendiar a cozinha.", linkName: "Steam", url: "https://store.steampowered.com/app/728880/Overcooked_2/" },
@@ -84,6 +81,7 @@ const gamesData = [
   { id: 27, title: "Feign", folder: "feign", players: "4-12", genre: "Estratégia", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "R$ 16,99", description: "Dedução onde você pode estar louco.", linkName: "Steam", url: "https://store.steampowered.com/app/1436990/Feign/" },
   { id: 38, title: "Deceit 2", folder: "deceit-2", players: "6-9", genre: "Terror", style: "Dedução Social", platforms: ["PC", "Console"], price: "Grátis", description: "Terror social com infectados entre os inocentes.", linkName: "Steam", url: "https://store.steampowered.com/app/2064870/Deceit_2/" },
   { id: 39, title: "Secret Neighbor", folder: "secret-neighbor", players: "6", genre: "Terror", style: "Dedução Social", platforms: ["PC", "Console", "Mobile"], price: "R$ 39,99", description: "Crianças invadem a casa, mas uma é o vizinho disfarçado.", linkName: "Steam", url: "https://store.steampowered.com/app/859570/Secret_Neighbor/" },
+  { id: 25, title: "Unfortunate Spacemen", folder: "unfortunate-spacemen", players: "Até 16", genre: "FPS / Terror", style: "Dedução Social", platforms: ["PC"], price: "Grátis", description: "Mistura de Among Us com tiroteio e monstros.", linkName: "Steam", url: "https://store.steampowered.com/app/408900/Unfortunate_Spacemen/" },
 
   // --- SOBREVIVÊNCIA & SANDBOX ---
   { id: 10, title: "Minecraft", folder: "minecraft", players: "Ilimitado", genre: "Sandbox", style: "Survival", platforms: ["Todas"], price: "R$ 99,00", description: "Construa e sobreviva.", linkName: "Site Oficial", url: "https://www.minecraft.net/" },
@@ -98,6 +96,7 @@ const gamesData = [
   { id: 44, title: "Palworld", folder: "palworld", players: "4-32", genre: "Sobrevivência", style: "Survival", platforms: ["PC", "Xbox"], price: "R$ 88,99", description: "Pokémons com armas e construção de base.", linkName: "Steam", url: "https://store.steampowered.com/app/1623730/Palworld/" },
   { id: 45, title: "7 Days to Die", folder: "7-days", players: "Ilimitado", genre: "Sobrevivência", style: "Survival", platforms: ["PC", "Console"], price: "R$ 44,99", description: "Sobreviva a hordas de zumbis a cada 7 dias.", linkName: "Steam", url: "https://store.steampowered.com/app/251570/7_Days_to_Die/" },
   { id: 46, title: "LEGO Fortnite", folder: "lego-fortnite", players: "Até 8", genre: "Sandbox", style: "Survival", platforms: ["PC", "Console"], price: "Grátis", description: "Minecraft dentro do Fortnite. Muito polido.", linkName: "Epic Games", url: "https://www.fortnite.com/" },
+  { id: 26, title: "Unturned", folder: "unturned", players: "Até 24+", genre: "FPS", style: "Survival", platforms: ["PC"], price: "Grátis", description: "Sobrevivência zumbi com visual simples (blocos).", linkName: "Steam", url: "https://store.steampowered.com/app/304930/Unturned/" },
 
   // --- TERROR COOPERATIVO ---
   { id: 11, title: "Lethal Company", folder: "lethal-company", players: "4+", genre: "Terror", style: "Cooperativo", platforms: ["PC"], price: "R$ 32,99", description: "Colete sucata e morra rindo.", linkName: "Steam", url: "https://store.steampowered.com/app/1966720/Lethal_Company/" },
@@ -137,13 +136,15 @@ const gamesData = [
   // --- NAVEGADOR & MOBILE ---
   { id: 16, title: "Gartic Phone", folder: "gartic-phone", players: "Até 30", genre: "Casual", style: "Casual", platforms: ["Web"], price: "Grátis", description: "Telefone sem fio desenhado.", linkName: "Jogar Agora", url: "https://garticphone.com" },
   { id: 17, title: "JKLM.fun", folder: "jklm", players: "16+", genre: "Casual", style: "Casual", platforms: ["Web"], price: "Grátis", description: "Jogo da bomba de palavras.", linkName: "Jogar Agora", url: "https://jklm.fun" },
+  { id: 18, title: "Make It Meme", folder: "make-it-meme", players: "Até 15", genre: "Casual", style: "Casual", platforms: ["Web"], price: "Grátis", description: "Crie legendas engraçadas para memes e vote nos amigos.", linkName: "Jogar Agora", url: "https://makeitmeme.com" },
+  { id: 19, title: "Board Game Arena", folder: "board-game-arena", players: "Varia", genre: "Casual", style: "Casual", platforms: ["Web"], price: "Grátis", description: "Centenas de jogos de tabuleiro (Uno, Saboteur) no navegador.", linkName: "Acessar Site", url: "https://boardgamearena.com" },
   { id: 20, title: "StopotS", folder: "stopots", players: "Ilimitado", genre: "Casual", style: "Casual", platforms: ["Web", "Mobile"], price: "Grátis", description: "Adedonha online.", linkName: "Jogar Agora", url: "https://stopots.com.br" },
+  { id: 21, title: "Codenames Online", folder: "codenames", players: "Ilimitado", genre: "Casual", style: "Times", platforms: ["Web"], price: "Grátis", description: "Jogo de espiões e dicas de palavras em times.", linkName: "Jogar Agora", url: "https://codenames.game" },
   { id: 63, title: "Free Fire", folder: "free-fire", players: "50", genre: "Battle Royale", style: "Competitivo", platforms: ["Mobile"], price: "Grátis", description: "Battle Royale leve e popular.", linkName: "Google Play", url: "https://ff.garena.com/" },
   { id: 64, title: "Brawl Stars", folder: "brawl-stars", players: "6 (3v3)", genre: "Ação", style: "Times", platforms: ["Mobile"], price: "Grátis", description: "Tiroteio rápido e divertido.", linkName: "App Store", url: "https://supercell.com/en/games/brawlstars/" },
   { id: 65, title: "Ludo King", folder: "ludo", players: "4-6", genre: "Tabuleiro", style: "Casual", platforms: ["Mobile", "Web"], price: "Grátis", description: "O clássico Ludo.", linkName: "Google Play", url: "https://ludoking.com/" }
 ];
 
-// --- COMPONENTE: RULETA SVG COM IMAGENS ---
 const RouletteWheel = ({ items, onSpinEnd }) => {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -202,16 +203,12 @@ const RouletteWheel = ({ items, onSpinEnd }) => {
   );
 };
 
-// --- MODAL DE SORTEIO COM MULTI-SELECT E RANGE ---
 const RaffleModal = ({ isOpen, onClose, allGames }) => {
   const [step, setStep] = useState('filters'); 
   const [filteredList, setFilteredList] = useState([]);
   const [winnerGame, setWinnerGame] = useState(null);
-  
-  // ESTADO DE FILTROS DO MODAL
-  const [selectedPlatforms, setSelectedPlatforms] = useState([]);
-  const [selectedStyles, setSelectedStyles] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(300); // Slider default Max
+  const [filters, setFilters] = useState({ platform: [], price: 'Todos', style: [], playerCount: 'Qualquer' });
+  const [maxPrice, setMaxPrice] = useState(300);
 
   const toggleSelection = (list, setList, value) => {
     if (list.includes(value)) setList(list.filter(item => item !== value));
@@ -220,25 +217,15 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
 
   const applyFilters = () => {
     const result = allGames.filter(game => {
-      // Plataforma (Se vazio = todas)
-      const matchPlatform = selectedPlatforms.length === 0 || 
-        selectedPlatforms.some(p => 
-          game.platforms.includes(p) || 
-          (p === 'Web' && game.platforms.includes('Web')) ||
-          (p === 'PC' && game.platforms.includes('PC')) ||
-          (p === 'Mobile' && game.platforms.includes('Mobile')) ||
-          (p === 'Console' && (game.platforms.includes('Console') || game.platforms.includes('Xbox') || game.platforms.includes('Switch')))
-        );
-
-      // Estilo (Se vazio = todos)
-      const matchStyle = selectedStyles.length === 0 || selectedStyles.includes(game.style);
-
-      // Preço (Slider)
-      const priceVal = parsePrice(game.price);
-      // Se slider for 0, só aceita grátis. Se > 0, aceita até aquele valor.
-      const matchPrice = maxPrice === 0 ? priceVal === 0 : priceVal <= maxPrice;
-
-      return matchPlatform && matchStyle && matchPrice;
+      const matchPlat = filters.platform.length === 0 || filters.platform.some(p => game.platforms.includes(p) || (p === 'Web' && game.platforms.includes('Web')) || (p === 'PC' && game.platforms.includes('PC')) || (p === 'Mobile' && game.platforms.includes('Mobile')) || (p === 'Console' && (game.platforms.includes('Console') || game.platforms.includes('Xbox') || game.platforms.includes('Switch'))));
+      const matchPrice = filters.price === 'Todos' || (filters.price === 'Grátis' && game.price.includes('Grátis')) || (filters.price === 'Pago' && !game.price.includes('Grátis'));
+      const matchStyle = filters.style.length === 0 || filters.style.includes(game.style);
+      let matchPlayers = true;
+      const maxP = getMaxPlayers(game.players);
+      if (filters.playerCount === 'Pequeno') matchPlayers = maxP <= 8;
+      if (filters.playerCount === 'Médio') matchPlayers = maxP >= 8 && maxP <= 16;
+      if (filters.playerCount === 'Grande') matchPlayers = maxP > 16;
+      return matchPlat && matchPrice && matchStyle && matchPlayers;
     });
     setFilteredList(result);
     setStep('roulette');
@@ -255,73 +242,9 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
           <div className="p-8">
             <h2 className="text-2xl font-black text-blue-700 flex items-center gap-2 mb-6"><Dices size={28} /> Configurar Sorteio</h2>
             <div className="space-y-6">
-              
-              {/* PLATAFORMAS (Multi) */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Plataformas (Vazio = Todas)</label>
-                <div className="flex flex-wrap gap-2">
-                  {['PC', 'Web', 'Mobile', 'Console'].map(p => (
-                    <button 
-                      key={p} 
-                      onClick={() => toggleSelection(selectedPlatforms, setSelectedPlatforms, p)} 
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                        selectedPlatforms.includes(p) 
-                          ? 'bg-blue-600 text-white border-blue-600' 
-                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* ESTILOS (Multi) */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Estilos (Vazio = Todos)</label>
-                <div className="flex flex-wrap gap-2">
-                  {['Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival', 'MMO'].map(style => (
-                    <button 
-                      key={style} 
-                      onClick={() => toggleSelection(selectedStyles, setSelectedStyles, style)} 
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors flex items-center gap-1 ${
-                        selectedStyles.includes(style) 
-                          ? 'bg-indigo-600 text-white border-indigo-600' 
-                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      {selectedStyles.includes(style) && <span className="text-xs">✓</span>}
-                      {style}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* PREÇO (Slider) */}
-              <div>
-                <div className="flex justify-between items-end mb-2">
-                  <label className="block text-sm font-bold text-gray-700">Preço Máximo</label>
-                  <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
-                    {maxPrice === 0 ? "Apenas Grátis" : maxPrice >= 300 ? "Qualquer Valor" : `Até R$ ${maxPrice},00`}
-                  </span>
-                </div>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="300" 
-                  step="10" 
-                  value={maxPrice} 
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
-                />
-                <div className="flex justify-between text-xs text-gray-400 mt-1">
-                  <span>Grátis</span>
-                  <span>R$ 100</span>
-                  <span>R$ 200</span>
-                  <span>Ilimitado</span>
-                </div>
-              </div>
-
+              <div><label className="block text-sm font-bold text-gray-700 mb-2">Estilos (Vazio = Todos)</label><div className="flex flex-wrap gap-2">{['Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival', 'MMO'].map(opt => (<button key={opt} onClick={() => toggleSelection(filters.style, (v) => setFilters({...filters, style: v}), opt)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.style.includes(opt) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{opt}</button>))}</div></div>
+              <div><label className="block text-sm font-bold text-gray-700 mb-2">Tamanho do Grupo</label><div className="flex flex-wrap gap-2">{[{l:'Qualquer',v:'Qualquer'},{l:'Pequeno (até 8)',v:'Pequeno'},{l:'Médio (8-16)',v:'Médio'},{l:'Grande (17+)',v:'Grande'}].map(opt => (<button key={opt.v} onClick={() => setFilters({...filters, playerCount: opt.v})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.playerCount === opt.v ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{opt.l}</button>))}</div></div>
+              <div><label className="block text-sm font-bold text-gray-700 mb-2">Plataformas</label><div className="flex flex-wrap gap-2">{['PC', 'Web', 'Mobile', 'Console'].map(p => (<button key={p} onClick={() => toggleSelection(filters.platform, (v) => setFilters({...filters, platform: v}), p)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.platform.includes(p) ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{p}</button>))}</div></div>
             </div>
             <button onClick={applyFilters} className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg transition-colors shadow-lg">Continuar para Roleta</button>
           </div>
@@ -343,7 +266,6 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
   );
 };
 
-// --- COMPONENTES AUXILIARES ---
 const ImageModal = ({ isOpen, images, startIndex, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   useEffect(() => { if (isOpen) setCurrentIndex(startIndex); }, [isOpen, startIndex]);
@@ -427,7 +349,7 @@ export default function App() {
   // ESTADO DE FILTROS PRINCIPAL (Multi-select)
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
   const [selectedStyles, setSelectedStyles] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(300); // 300 = Ilimitado
+  const [maxPrice, setMaxPrice] = useState(300);
 
   const toggleSelection = (list, setList, value) => {
     if (list.includes(value)) setList(list.filter(item => item !== value));
@@ -438,7 +360,6 @@ export default function App() {
     return gamesData.filter(game => {
       const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) || game.genre.toLowerCase().includes(searchTerm.toLowerCase());
       
-      // Plataforma (Multi)
       const matchesPlatform = selectedPlatforms.length === 0 || 
         selectedPlatforms.some(p => 
           game.platforms.includes(p) || 
@@ -448,10 +369,8 @@ export default function App() {
           (p === 'Console' && (game.platforms.includes('Console') || game.platforms.includes('Xbox') || game.platforms.includes('Switch')))
         );
 
-      // Estilo (Multi)
       const matchesStyle = selectedStyles.length === 0 || selectedStyles.includes(game.style);
 
-      // Preço (Slider)
       const priceVal = parsePrice(game.price);
       const matchesPrice = maxPrice === 0 ? priceVal === 0 : priceVal <= maxPrice;
 
