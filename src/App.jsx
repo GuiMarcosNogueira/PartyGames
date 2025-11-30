@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, Sun, Moon } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, Sun, Moon } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
 let allGameImages = {};
@@ -347,8 +347,19 @@ export default function App() {
   const [modalData, setModalData] = useState(null);
   const [raffleOpen, setRaffleOpen] = useState(false);
   
-  // DARK MODE
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+  // DARK MODE COM DETECÇÃO DE SISTEMA
+  const [darkMode, setDarkMode] = useState(() => {
+    // 1. Verifica se já tem preferência salva pelo usuário
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        return savedTheme === 'dark';
+      }
+      // 2. Se não, verifica a preferência do sistema operacional
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
 
   useEffect(() => {
     if (darkMode) {
@@ -359,6 +370,22 @@ export default function App() {
       localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
+
+  // Listener para mudanças no sistema em tempo real (se o user mudar o Windows de Claro pra Escuro)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      // Só muda automaticamente se o usuário não tiver definido uma preferência manual ainda (opcional)
+      // Mas geralmente, queremos respeitar o switch manual.
+      // Se quiser que o sistema sempre mande caso não haja localStorage, faríamos aqui.
+      if (!localStorage.getItem('theme')) {
+        setDarkMode(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   // FILTROS
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
