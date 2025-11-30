@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, Sun, Moon } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, Sun, Moon } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
 let allGameImages = {};
@@ -170,7 +170,7 @@ const RouletteWheel = ({ items, onSpinEnd }) => {
     <div className="flex flex-col items-center justify-center p-4">
       <div className="relative w-80 h-80 md:w-96 md:h-96 mb-8">
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20 drop-shadow-xl"><div className="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[25px] border-t-red-600"></div></div>
-        <div className="w-full h-full rounded-full border-4 border-white shadow-2xl overflow-hidden transition-transform duration-[4000ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]" style={{ transform: `rotate(${rotation}deg)` }}>
+        <div className="w-full h-full rounded-full border-4 border-white dark:border-zinc-800 shadow-2xl overflow-hidden transition-transform duration-[4000ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]" style={{ transform: `rotate(${rotation}deg)` }}>
           <svg viewBox="-1 -1 2 2" className="w-full h-full transform -rotate-90">
             <defs><clipPath id="circleClip"><circle cx="0" cy="0" r="0.18" /></clipPath></defs>
             {items.map((item, index) => {
@@ -198,7 +198,7 @@ const RouletteWheel = ({ items, onSpinEnd }) => {
           </svg>
         </div>
       </div>
-      <button onClick={startSpin} disabled={spinning} className={`px-8 py-3 rounded-full font-black text-white text-lg shadow-lg transform transition-all ${spinning ? 'bg-gray-400 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:scale-105 active:scale-95'}`}>{spinning ? 'GIRANDO...' : 'GIRAR ROLETA!'}</button>
+      <button onClick={startSpin} disabled={spinning} className={`px-8 py-3 rounded-full font-black text-white text-lg shadow-lg transform transition-all ${spinning ? 'bg-zinc-400 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:scale-105 active:scale-95'}`}>{spinning ? 'GIRANDO...' : 'GIRAR ROLETA!'}</button>
     </div>
   );
 };
@@ -236,26 +236,26 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative max-h-[90vh] overflow-y-auto border border-zinc-200 dark:border-zinc-800">
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 z-10"><X size={24} /></button>
         {step === 'filters' && (
           <div className="p-8">
             <h2 className="text-2xl font-black text-blue-700 dark:text-blue-400 flex items-center gap-2 mb-6"><Dices size={28} /> Configurar Sorteio</h2>
             <div className="space-y-6">
-              <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Estilos (Vazio = Todos)</label><div className="flex flex-wrap gap-2">{['Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival', 'MMO'].map(opt => (<button key={opt} onClick={() => toggleSelection(filters.style, (v) => setFilters({...filters, style: v}), opt)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.style.includes(opt) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600'}`}>{opt}</button>))}</div></div>
-              <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Tamanho do Grupo</label><div className="flex flex-wrap gap-2">{[{l:'Qualquer',v:'Qualquer'},{l:'Pequeno (até 8)',v:'Pequeno'},{l:'Médio (8-16)',v:'Médio'},{l:'Grande (17+)',v:'Grande'}].map(opt => (<button key={opt.v} onClick={() => setFilters({...filters, playerCount: opt.v})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.playerCount === opt.v ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600'}`}>{opt.l}</button>))}</div></div>
-              <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Plataformas</label><div className="flex flex-wrap gap-2">{['PC', 'Web', 'Mobile', 'Console'].map(p => (<button key={p} onClick={() => toggleSelection(filters.platform, (v) => setFilters({...filters, platform: v}), p)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.platform.includes(p) ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-600'}`}>{p}</button>))}</div></div>
+              <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Estilos (Vazio = Todos)</label><div className="flex flex-wrap gap-2">{['Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival', 'MMO'].map(opt => (<button key={opt} onClick={() => toggleSelection(filters.style, (v) => setFilters({...filters, style: v}), opt)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.style.includes(opt) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>{opt}</button>))}</div></div>
+              <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Tamanho do Grupo</label><div className="flex flex-wrap gap-2">{[{l:'Qualquer',v:'Qualquer'},{l:'Pequeno (até 8)',v:'Pequeno'},{l:'Médio (8-16)',v:'Médio'},{l:'Grande (17+)',v:'Grande'}].map(opt => (<button key={opt.v} onClick={() => setFilters({...filters, playerCount: opt.v})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.playerCount === opt.v ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>{opt.l}</button>))}</div></div>
+              <div><label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Plataformas</label><div className="flex flex-wrap gap-2">{['PC', 'Web', 'Mobile', 'Console'].map(p => (<button key={p} onClick={() => toggleSelection(filters.platform, (v) => setFilters({...filters, platform: v}), p)} className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${filters.platform.includes(p) ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700'}`}>{p}</button>))}</div></div>
             </div>
             <button onClick={applyFilters} className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg transition-colors shadow-lg">Continuar para Roleta</button>
           </div>
         )}
         {step === 'roulette' && (
-          <div className="p-8 text-center bg-slate-50 dark:bg-slate-900 min-h-[400px] flex flex-col items-center justify-center">
+          <div className="p-8 text-center bg-slate-50 dark:bg-zinc-950 min-h-[400px] flex flex-col items-center justify-center">
             {filteredList.length === 0 ? (<div className="text-center"><p className="text-gray-500 dark:text-gray-400 mb-4">Nenhum jogo encontrado com esses filtros.</p><button onClick={() => setStep('filters')} className="text-blue-600 dark:text-blue-400 font-bold hover:underline">Voltar</button></div>) : winnerGame ? (
               <div className="animate-scaleIn w-full">
                 <h3 className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-sm mb-2">O Vencedor é:</h3>
                 <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">{winnerGame.title}</h2>
-                <div className="bg-white dark:bg-slate-700 p-6 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-600 max-w-sm mx-auto mb-8 transform hover:scale-105 transition-transform"><div className="h-40 w-full bg-gray-200 dark:bg-slate-800 rounded-lg mb-4 overflow-hidden"><img src={getImagesForGame(winnerGame.folder, winnerGame.title)[0]} alt={winnerGame.title} className="w-full h-full object-cover" /></div><p className="text-gray-600 dark:text-gray-300 text-sm mb-6">{winnerGame.description}</p><a href={winnerGame.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-md"><ExternalLink size={20} /> Baixar Agora</a></div>
+                <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl shadow-xl border border-gray-100 dark:border-zinc-700 max-w-sm mx-auto mb-8 transform hover:scale-105 transition-transform"><div className="h-40 w-full bg-gray-200 dark:bg-zinc-700 rounded-lg mb-4 overflow-hidden"><img src={getImagesForGame(winnerGame.folder, winnerGame.title)[0]} alt={winnerGame.title} className="w-full h-full object-cover" /></div><p className="text-gray-600 dark:text-gray-300 text-sm mb-6">{winnerGame.description}</p><a href={winnerGame.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-md"><ExternalLink size={20} /> Baixar Agora</a></div>
                 <button onClick={resetRaffle} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-sm font-medium flex items-center justify-center gap-1 mx-auto"><RotateCw size={16} /> Sortear Novamente</button>
               </div>
             ) : (<><h3 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">Sorteando entre {filteredList.length} jogos...</h3><RouletteWheel items={filteredList} onSpinEnd={(winner) => setWinnerGame(winner)} /><button onClick={() => setStep('filters')} className="mt-6 text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 underline">Alterar Filtros</button></>)}
@@ -286,7 +286,7 @@ const ImageModal = ({ isOpen, images, startIndex, onClose }) => {
 };
 
 const FilterButton = ({ active, onClick, children, icon: Icon }) => (
-  <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${active ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600 border border-gray-200 dark:border-slate-600'}`}>{Icon && <Icon size={16} />}{children}</button>
+  <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${active ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700'}`}>{Icon && <Icon size={16} />}{children}</button>
 );
 
 const GameCard = ({ game, onImageClick }) => {
@@ -297,15 +297,15 @@ const GameCard = ({ game, onImageClick }) => {
   const prevImage = (e) => { e.preventDefault(); e.stopPropagation(); setCurrentImgIndex((prev) => (prev - 1 + images.length) % images.length); };
   
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-slate-700 overflow-hidden flex flex-col h-full animate-fadeIn group">
-      <div className="relative h-48 w-full bg-gray-200 dark:bg-slate-700 overflow-hidden cursor-zoom-in" onClick={() => onImageClick(images, currentImgIndex)}>
+    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-zinc-800 overflow-hidden flex flex-col h-full animate-fadeIn group">
+      <div className="relative h-48 w-full bg-gray-200 dark:bg-zinc-800 overflow-hidden cursor-zoom-in" onClick={() => onImageClick(images, currentImgIndex)}>
         <img src={images[currentImgIndex]} alt={`${game.title} screenshot`} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"/>
         {images.length > 1 && (<div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"><button onClick={prevImage} className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"><ChevronLeft size={20} /></button><button onClick={nextImage} className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"><ChevronRight size={20} /></button></div>)}
         {images.length > 1 && (<div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">{images.map((_, idx) => (<div key={idx} className={`w-1.5 h-1.5 rounded-full shadow-sm transition-all ${idx === currentImgIndex ? 'bg-white scale-110' : 'bg-white/50'}`}/>))}</div>)}
       </div>
       <div className="p-5 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-3"><h3 className="text-xl font-bold text-gray-800 dark:text-white leading-tight">{game.title}</h3>{game.price.includes("Grátis") ? (<span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">Grátis</span>) : (<span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs px-2 py-1 rounded-full font-bold whitespace-nowrap">{game.price}</span>)}</div>
-        <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3 flex-1">{game.description}</p>
+        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3 flex-1">{game.description}</p>
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-gray-500 dark:text-gray-400 text-xs"><Users size={14} className="mr-2 text-blue-500 dark:text-blue-400" /><span className="font-semibold text-gray-700 dark:text-gray-200 mr-1">Jogadores:</span> {game.players}</div>
           <div className="flex items-center text-gray-500 dark:text-gray-400 text-xs">{getStyleIcon(game.style)}<span className="ml-2 font-semibold text-gray-700 dark:text-gray-200 mr-1">Estilo:</span> {game.style}</div>
@@ -318,10 +318,10 @@ const GameCard = ({ game, onImageClick }) => {
 };
 
 const GamesTable = ({ games }) => (
-  <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden animate-fadeIn">
+  <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden animate-fadeIn">
     <div className="overflow-x-auto">
       <table className="w-full text-sm text-left">
-        <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
+        <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700">
           <tr><th className="px-6 py-4 font-bold">Jogo</th><th className="px-6 py-4 font-bold">Estilo</th><th className="px-6 py-4 font-bold">Jogadores</th><th className="px-6 py-4 font-bold">Preço (BR)</th><th className="px-6 py-4 font-bold">Plataformas</th><th className="px-6 py-4 font-bold">Ação</th></tr>
         </thead>
         <tbody className="text-gray-800 dark:text-gray-200">
@@ -329,8 +329,8 @@ const GamesTable = ({ games }) => (
             const isWeb = game.platforms.includes("Web");
             const images = getImagesForGame(game.folder, game.title);
             return (
-              <tr key={game.id} className={`border-b border-gray-100 dark:border-slate-700 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-gray-50/50 dark:bg-slate-800/50'}`}>
-                <td className="px-6 py-4 font-bold whitespace-nowrap flex items-center gap-3"><img src={images[0]} alt="" className="w-10 h-10 rounded object-cover border border-gray-200 dark:border-slate-600" />{game.title}</td><td className="px-6 py-4 text-gray-600 dark:text-gray-400"><span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-600 text-gray-800 dark:text-gray-200">{game.style}</span></td><td className="px-6 py-4 text-blue-600 dark:text-blue-400 font-medium">{game.players}</td><td className="px-6 py-4">{game.price.includes("Grátis") ? (<span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded text-xs font-bold">Grátis</span>) : (<span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold whitespace-nowrap">{game.price}</span>)}</td><td className="px-6 py-4"><div className="flex flex-wrap gap-1">{game.platforms.map(p => (<span key={p} className="bg-gray-100 dark:bg-slate-600 border border-gray-200 dark:border-slate-500 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded text-xs">{p}</span>))}</div></td><td className="px-6 py-4"><a href={game.url} target="_blank" rel="noopener noreferrer" className={`${isWeb ? 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-800' : 'text-blue-600 dark:text-blue-400 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}>{isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}{isWeb ? game.linkName : `Baixar`} <ExternalLink size={10} /></a></td>
+              <tr key={game.id} className={`border-b border-gray-100 dark:border-zinc-800 hover:bg-blue-50 dark:hover:bg-zinc-800 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/50 dark:bg-zinc-900/50'}`}>
+                <td className="px-6 py-4 font-bold whitespace-nowrap flex items-center gap-3"><img src={images[0]} alt="" className="w-10 h-10 rounded object-cover border border-gray-200 dark:border-zinc-700" />{game.title}</td><td className="px-6 py-4 text-gray-600 dark:text-gray-400"><span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-zinc-700 text-gray-800 dark:text-gray-200">{game.style}</span></td><td className="px-6 py-4 text-blue-600 dark:text-blue-400 font-medium">{game.players}</td><td className="px-6 py-4">{game.price.includes("Grátis") ? (<span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded text-xs font-bold">Grátis</span>) : (<span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold whitespace-nowrap">{game.price}</span>)}</td><td className="px-6 py-4"><div className="flex flex-wrap gap-1">{game.platforms.map(p => (<span key={p} className="bg-gray-100 dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded text-xs">{p}</span>))}</div></td><td className="px-6 py-4"><a href={game.url} target="_blank" rel="noopener noreferrer" className={`${isWeb ? 'text-emerald-600 dark:text-emerald-400 hover:text-emerald-800' : 'text-blue-600 dark:text-blue-400 hover:text-blue-800'} font-medium hover:underline flex items-center gap-1`}>{isWeb ? <Play size={12} /> : <ShoppingCart size={12} />}{isWeb ? game.linkName : `Baixar`} <ExternalLink size={10} /></a></td>
               </tr>
             );
           })}
@@ -347,15 +347,11 @@ export default function App() {
   const [modalData, setModalData] = useState(null);
   const [raffleOpen, setRaffleOpen] = useState(false);
   
-  // DARK MODE COM DETECÇÃO DE SISTEMA
+  // DARK MODE INTELIGENTE
   const [darkMode, setDarkMode] = useState(() => {
-    // 1. Verifica se já tem preferência salva pelo usuário
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) {
-        return savedTheme === 'dark';
-      }
-      // 2. Se não, verifica a preferência do sistema operacional
+      if (savedTheme) return savedTheme === 'dark';
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
     return false;
@@ -371,18 +367,11 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Listener para mudanças no sistema em tempo real (se o user mudar o Windows de Claro pra Escuro)
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e) => {
-      // Só muda automaticamente se o usuário não tiver definido uma preferência manual ainda (opcional)
-      // Mas geralmente, queremos respeitar o switch manual.
-      // Se quiser que o sistema sempre mande caso não haja localStorage, faríamos aqui.
-      if (!localStorage.getItem('theme')) {
-        setDarkMode(e.matches);
-      }
+      if (!localStorage.getItem('theme')) setDarkMode(e.matches);
     };
-
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
@@ -420,7 +409,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-gray-800 dark:text-slate-100 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 font-sans text-gray-800 dark:text-slate-100 transition-colors duration-300">
       <ImageModal isOpen={!!modalData} images={modalData?.images || []} startIndex={modalData?.startIndex || 0} onClose={() => setModalData(null)} />
       <RaffleModal isOpen={raffleOpen} onClose={() => setRaffleOpen(false)} allGames={gamesData} />
 
@@ -429,23 +418,22 @@ export default function App() {
         <span className="font-bold text-lg hidden group-hover:block pr-2">Sortear Jogo!</span>
       </button>
 
-      <header className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-20 shadow-sm transition-colors duration-300">
+      <header className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 sticky top-0 z-20 shadow-sm transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div><h1 className="text-2xl font-black text-blue-700 dark:text-blue-400 flex items-center gap-2"><Gamepad2 className="text-blue-600 dark:text-blue-400" /> Galera Gamer 10+</h1><p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Catálogo de jogos com preços e links diretos</p></div>
             
             <div className="flex gap-2 w-full md:w-auto items-center">
-                {/* DARK MODE TOGGLE */}
-                <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-600 transition-all">
+                <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-all">
                   {darkMode ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
 
-                <div className="relative flex-1 md:w-80"><input type="text" placeholder="Buscar jogo..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-700 border-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-600 text-gray-800 dark:text-white transition-all outline-none placeholder-gray-400" /><Search className="absolute left-3 top-2.5 text-gray-400" size={18} /></div>
-                <div className="flex bg-gray-100 dark:bg-slate-700 rounded-lg p-1 gap-1"><button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`} title="Visualização em Cards"><Grid size={20} /></button><button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-white dark:bg-slate-600 shadow text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`} title="Visualização em Tabela"><List size={20} /></button></div>
+                <div className="relative flex-1 md:w-80"><input type="text" placeholder="Buscar jogo..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-zinc-800 border-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-zinc-900 text-gray-800 dark:text-white transition-all outline-none placeholder-gray-400" /><Search className="absolute left-3 top-2.5 text-gray-400" size={18} /></div>
+                <div className="flex bg-gray-100 dark:bg-zinc-800 rounded-lg p-1 gap-1"><button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-zinc-700 shadow text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`} title="Visualização em Cards"><Grid size={20} /></button><button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-white dark:bg-zinc-700 shadow text-blue-600 dark:text-blue-400' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`} title="Visualização em Tabela"><List size={20} /></button></div>
             </div>
           </div>
           
-          <div className="flex flex-col gap-4 mt-4 pt-2 border-t border-gray-100 dark:border-slate-700">
+          <div className="flex flex-col gap-4 mt-4 pt-2 border-t border-gray-100 dark:border-zinc-800">
             <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 scrollbar-hide items-center">
               <span className="text-xs font-bold text-gray-400 uppercase tracking-wide mr-2">Plataformas:</span>
               {['PC', 'Web', 'Mobile', 'Console'].map(p => (
@@ -458,10 +446,10 @@ export default function App() {
                  <FilterButton key={style} active={selectedStyles.includes(style)} onClick={() => toggleSelection(selectedStyles, setSelectedStyles, style)} icon={getStyleIcon(style).type}>{style}</FilterButton>
               ))}
             </div>
-            <div className="flex items-center gap-4 py-2 border-t border-gray-100 dark:border-slate-700">
+            <div className="flex items-center gap-4 py-2 border-t border-gray-100 dark:border-zinc-800">
               <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">Preço Máx:</span>
               <div className="flex-1 max-w-xs flex items-center gap-3">
-                <input type="range" min="0" max="300" step="10" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="w-full h-2 bg-gray-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                <input type="range" min="0" max="300" step="10" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="w-full h-2 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-blue-600" />
                 <span className="text-sm font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap min-w-[80px]">{maxPrice === 0 ? "Grátis" : maxPrice >= 300 ? "Ilimitado" : `R$ ${maxPrice}`}</span>
               </div>
               <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-red-500 underline ml-auto">Limpar Tudo</button>
@@ -472,7 +460,7 @@ export default function App() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 pb-24">
         <div className="flex justify-between items-center mb-6"><h2 className="text-lg font-bold text-gray-700 dark:text-gray-200">{filteredGames.length} Jogos Encontrados</h2>{filteredGames.length === 0 && (<button onClick={clearFilters} className="text-blue-600 dark:text-blue-400 text-sm hover:underline">Limpar filtros</button>)}</div>
-        {filteredGames.length > 0 ? (<>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">{filteredGames.map(game => (<GameCard key={game.id} game={game} onImageClick={handleOpenModal} />))}</div>) : (<GamesTable games={filteredGames} />)}</>) : (<div className="text-center py-20 bg-white dark:bg-slate-800 rounded-xl border border-dashed border-gray-300 dark:border-slate-600"><Gamepad2 size={48} className="mx-auto text-gray-300 dark:text-slate-500 mb-4" /><h3 className="text-xl font-medium text-gray-600 dark:text-gray-400">Nenhum jogo encontrado</h3></div>)}
+        {filteredGames.length > 0 ? (<>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">{filteredGames.map(game => (<GameCard key={game.id} game={game} onImageClick={handleOpenModal} />))}</div>) : (<GamesTable games={filteredGames} />)}</>) : (<div className="text-center py-20 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-gray-300 dark:border-zinc-700"><Gamepad2 size={48} className="mx-auto text-gray-300 dark:text-zinc-600 mb-4" /><h3 className="text-xl font-medium text-gray-600 dark:text-gray-400">Nenhum jogo encontrado</h3></div>)}
       </main>
       
       <style>{`
