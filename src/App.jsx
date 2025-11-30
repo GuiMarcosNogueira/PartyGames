@@ -5,10 +5,9 @@ import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart,
 // PARA O SEU SERVIDOR ES2020: Descomente o bloco abaixo.
 // (Mantive comentado aqui apenas para evitar erro no visualizador do chat)
 
-// Fallback para o preview do chat (Substitua por {} se descomentar acima)
 const allGameImages = {}; 
 
-const allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
+allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
   eager: true,
   import: 'default',
   query: '?url'
