@@ -3,12 +3,11 @@ import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart,
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
 
-// 1. Inicializa vazio (Fallback para evitar erros neste preview)
+// 1. Inicializa vazio (Fallback para o chat)
 let allGameImages = {};
 
 // 2. NO SEU SERVIDOR (Vite/Vercel com ES2020):
 // Remova as barras (//) das linhas abaixo para ativar a leitura automática.
-// Note que não usamos 'const' ou 'let' aqui, apenas atualizamos a variável já criada acima.
 
 allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
   eager: true,
@@ -30,6 +29,18 @@ const getImagesForGame = (folderName, gameTitle) => {
     `https://placehold.co/1920x1080/1e40af/ffffff?text=${encodeURIComponent(gameTitle)}+Game`,
     `https://placehold.co/1920x1080/172554/ffffff?text=${encodeURIComponent(gameTitle)}+Win`
   ];
+};
+
+// Helper para extrair número máximo de jogadores da string
+const getMaxPlayers = (playerStr) => {
+  if (typeof playerStr !== 'string') return 0;
+  if (playerStr.toLowerCase().includes('ilimitado')) return 999;
+  
+  // Extrai todos os números da string e pega o maior
+  const numbers = playerStr.match(/(\d+)/g);
+  if (!numbers) return 0;
+  
+  return Math.max(...numbers.map(Number));
 };
 
 const gamesData = [
@@ -83,8 +94,9 @@ const RouletteWheel = ({ items, onSpinEnd }) => {
 
     const newWinnerIndex = Math.floor(Math.random() * items.length);
     const sliceAngle = 360 / items.length;
-    // Ajuste de ângulo para centralizar o item no topo (ponteiro)
-    const spinAmount = 1800 + (360 - (newWinnerIndex * sliceAngle)) - (sliceAngle / 2); 
+    // O ponteiro está em cima (0/360 graus). Para o item N parar no topo, a roda deve girar:
+    // Rotação Total = Voltas Completas + (360 - AnguloDoItem)
+    const spinAmount = 1800 + (360 - (newWinnerIndex * sliceAngle)) - (sliceAngle / 2); // -sliceAngle/2 para centralizar
     
     setRotation(rotation + spinAmount);
 
@@ -135,7 +147,8 @@ const RouletteWheel = ({ items, onSpinEnd }) => {
               // Coordenadas da Imagem (65% do raio)
               const [imgX, imgY] = getCoordinatesForPercent(midAngle, 0.65);
               
-              // Rotação da Imagem para ficar "em pé"
+              // Rotação da Imagem: Para ficar "em pé" em relação ao centro
+              // Multiplicamos por 360 para graus. +90 porque o SVG começa girado.
               const imgRotation = (midAngle * 360) + 90;
               
               // Pega a imagem do jogo
@@ -183,15 +196,35 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
   const [filteredList, setFilteredList] = useState([]);
   const [winnerGame, setWinnerGame] = useState(null);
   
-  const [filters, setFilters] = useState({ platform: 'Todas', price: 'Todos', genre: 'Todos' });
+  // Filtros (Adicionado 'playerCount')
+  const [filters, setFilters] = useState({
+    platform: 'Todas',
+    price: 'Todos',
+    genre: 'Todos',
+    playerCount: 'Qualquer'
+  });
+
   const uniqueGenres = useMemo(() => ['Todos', ...new Set(allGames.map(g => g.genre))], [allGames]);
 
   const applyFilters = () => {
     const result = allGames.filter(game => {
+      // Filtro Plataforma
       const matchPlat = filters.platform === 'Todas' || game.platforms.includes(filters.platform) || (filters.platform === 'Web' && game.platforms.includes('Web')) || (filters.platform === 'PC' && game.platforms.includes('PC'));
+      
+      // Filtro Preço
       const matchPrice = filters.price === 'Todos' || (filters.price === 'Grátis' && game.price.includes('Grátis')) || (filters.price === 'Pago' && !game.price.includes('Grátis'));
+      
+      // Filtro Gênero
       const matchGenre = filters.genre === 'Todos' || game.genre === filters.genre;
-      return matchPlat && matchPrice && matchGenre;
+
+      // Filtro Jogadores (Lógica Personalizada)
+      let matchPlayers = true;
+      const maxP = getMaxPlayers(game.players);
+      if (filters.playerCount === 'Pequeno') matchPlayers = maxP <= 8;
+      if (filters.playerCount === 'Médio') matchPlayers = maxP >= 8 && maxP <= 16;
+      if (filters.playerCount === 'Grande') matchPlayers = maxP > 16;
+
+      return matchPlat && matchPrice && matchGenre && matchPlayers;
     });
     setFilteredList(result);
     setStep('roulette');
@@ -213,14 +246,37 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
           <div className="p-8">
             <h2 className="text-2xl font-black text-blue-700 flex items-center gap-2 mb-6"><Dices size={28} /> Configurar Sorteio</h2>
             <div className="space-y-6">
+              
+              {/* Filtro: Plataforma */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Plataforma</label>
                 <div className="flex flex-wrap gap-2">{['Todas', 'PC', 'Web', 'Mobile', 'Console'].map(p => (<button key={p} onClick={() => setFilters({...filters, platform: p})} className={`px-4 py-2 rounded-lg text-sm font-medium border ${filters.platform === p ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{p}</button>))}</div>
               </div>
+
+              {/* Filtro: Tamanho do Grupo (NOVO) */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Capacidade (Tamanho do Grupo)</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: 'Qualquer', value: 'Qualquer' },
+                    { label: 'Pequeno (até 8)', value: 'Pequeno' },
+                    { label: 'Médio (8 a 16)', value: 'Médio' },
+                    { label: 'Grande (16+)', value: 'Grande' }
+                  ].map(opt => (
+                    <button key={opt.value} onClick={() => setFilters({...filters, playerCount: opt.value})} className={`px-4 py-2 rounded-lg text-sm font-medium border ${filters.playerCount === opt.value ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Filtro: Preço */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Preço</label>
                 <div className="flex gap-2">{['Todos', 'Grátis', 'Pago'].map(p => (<button key={p} onClick={() => setFilters({...filters, price: p})} className={`px-4 py-2 rounded-lg text-sm font-medium border ${filters.price === p ? 'bg-green-600 text-white border-green-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{p}</button>))}</div>
               </div>
+
+              {/* Filtro: Gênero */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Gênero</label>
                 <select value={filters.genre} onChange={(e) => setFilters({...filters, genre: e.target.value})} className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">{uniqueGenres.map(g => <option key={g} value={g}>{g}</option>)}</select>
@@ -263,7 +319,7 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
   );
 };
 
-// --- COMPONENTES AUXILIARES (ImageModal, FilterButton, GameCard, GamesTable) ---
+// --- COMPONENTES AUXILIARES ---
 const ImageModal = ({ isOpen, images, startIndex, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   useEffect(() => { if (isOpen) setCurrentIndex(startIndex); }, [isOpen, startIndex]);
