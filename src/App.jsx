@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer } from 'lucide-react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
 // 1. Inicializa vazio (Fallback para o chat)
@@ -32,7 +32,7 @@ const getImagesForGame = (folderName, gameTitle) => {
 
 const getMaxPlayers = (playerStr) => {
   if (typeof playerStr !== 'string') return 0;
-  if (playerStr.toLowerCase().includes('ilimitado') || playerStr.toLowerCase().includes('mmo')) return 999;
+  if (playerStr.toLowerCase().includes('ilimitado') || playerStr.toLowerCase().includes('mmo') || playerStr.toLowerCase().includes('massivo')) return 999;
   const numbers = playerStr.match(/(\d+)/g);
   if (!numbers) return 0;
   return Math.max(...numbers.map(Number));
@@ -47,17 +47,18 @@ const getStyleIcon = (style) => {
     case 'Times': return <UsersRound size={14} className="text-blue-500" />;
     case 'Terror': return <Ghost size={14} className="text-gray-700" />;
     case 'Survival': return <Hammer size={14} className="text-yellow-600" />;
+    case 'MMO': return <Crown size={14} className="text-amber-500" />;
     default: return <Tag size={14} className="text-gray-500" />;
   }
 };
 
-// --- DADOS DOS JOGOS (EXPANDIDO) ---
+// --- DADOS DOS JOGOS (COM MMORPGs) ---
 const gamesData = [
   // --- PARTY & CASUAL ---
-  { id: 1, title: "Fall Guys", folder: "fall-guys", players: "Até 60", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Console", "Switch"], price: "Grátis", description: "Gincanas caóticas com jujubas.", linkName: "Epic Games", url: "https://store.epicgames.com/pt-BR/p/fall-guys" },
-  { id: 2, title: "Stumble Guys", folder: "stumble-guys", players: "Até 32", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Mobile", "Console"], price: "Grátis", description: "Versão leve do Fall Guys.", linkName: "Steam", url: "https://store.steampowered.com/app/1677740/Stumble_Guys/" },
-  { id: 3, title: "Pico Park", folder: "pico-park", players: "2-8", genre: "Puzzle", style: "Cooperativo", platforms: ["PC", "Switch"], price: "R$ 16,99", description: "Teste de amizade. Coordenação total ou caos.", linkName: "Steam", url: "https://store.steampowered.com/app/1509960/PICO_PARK/" },
-  { id: 4, title: "Crab Game", folder: "crab-game", players: "Até 40", genre: "Survival", style: "Competitivo", platforms: ["PC"], price: "Grátis", description: "Inspirado em Round 6 com chat de voz.", linkName: "Steam", url: "https://store.steampowered.com/app/1782210/Crab_Game/" },
+  { id: 1, title: "Fall Guys", folder: "fall-guys", players: "Até 60", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Console", "Switch"], price: "Grátis", description: "Gincanas caóticas com jujubas. Obrigatório para grupos grandes.", linkName: "Epic Games", url: "https://store.epicgames.com/pt-BR/p/fall-guys" },
+  { id: 2, title: "Stumble Guys", folder: "stumble-guys", players: "Até 32", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Mobile", "Console"], price: "Grátis", description: "A versão leve do Fall Guys. Roda em qualquer celular e PC.", linkName: "Steam", url: "https://store.steampowered.com/app/1677740/Stumble_Guys/" },
+  { id: 3, title: "Pico Park", folder: "pico-park", players: "2-8", genre: "Puzzle", style: "Cooperativo", platforms: ["PC", "Switch"], price: "R$ 16,99", description: "Teste de amizade. Coordenação total ou caos absoluto.", linkName: "Steam", url: "https://store.steampowered.com/app/1509960/PICO_PARK/" },
+  { id: 4, title: "Crab Game", folder: "crab-game", players: "Até 40", genre: "Survival", style: "Competitivo", platforms: ["PC"], price: "Grátis", description: "Inspirado em Round 6. Chat de proximidade é a alma do jogo.", linkName: "Steam", url: "https://store.steampowered.com/app/1782210/Crab_Game/" },
   { id: 30, title: "Gang Beasts", folder: "gang-beasts", players: "4-8", genre: "Luta / Physics", style: "Competitivo", platforms: ["PC", "Console"], price: "R$ 36,99", description: "Bonecos de gelatina brigando em cenários perigosos.", linkName: "Steam", url: "https://store.steampowered.com/app/285900/Gang_Beasts/" },
   { id: 31, title: "Human: Fall Flat", folder: "human-fall-flat", players: "Até 8", genre: "Puzzle / Physics", style: "Cooperativo", platforms: ["PC", "Console", "Mobile"], price: "R$ 37,99", description: "Resolva puzzles com física desengonçada.", linkName: "Steam", url: "https://store.steampowered.com/app/477160/Human_Fall_Flat/" },
   { id: 32, title: "Overcooked! 2", folder: "overcooked-2", players: "4", genre: "Simulador", style: "Cooperativo", platforms: ["PC", "Console"], price: "R$ 59,90", description: "Cozinhe sob pressão extrema sem incendiar a cozinha.", linkName: "Steam", url: "https://store.steampowered.com/app/728880/Overcooked_2/" },
@@ -71,7 +72,7 @@ const gamesData = [
   { id: 5, title: "Among Us", folder: "among-us", players: "4-15", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile", "Console"], price: "R$ 16,99 / Grátis", description: "Descubra o impostor.", linkName: "Steam", url: "https://store.steampowered.com/app/945360/Among_Us/" },
   { id: 6, title: "Goose Goose Duck", folder: "goose-goose-duck", players: "16+", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "Grátis", description: "Among Us com patos e chat de voz.", linkName: "Steam", url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/" },
   { id: 7, title: "Dale & Dawson", folder: "dale-dawson", players: "Até 21", genre: "Roleplay", style: "Dedução Social", platforms: ["PC"], price: "R$ 26,49", description: "Quem trabalha e quem finge no escritório?", linkName: "Steam", url: "https://store.steampowered.com/app/2920570/Dale__Dawson_Stationery_Supplies/" },
-  { id: 8, title: "Lockdown Protocol", folder: "lockdown-protocol", players: "3-8", genre: "Sci-Fi", style: "Dedução Social", platforms: ["PC"], price: "R$ 32,99", description: "Mate os traidores antes que seja tarde.", linkName: "Steam", url: "https://store.steampowered.com/app/2780980/LOCKDOWN_Protocol/" },
+  { id: 8, title: "Lockdown Protocol", folder: "lockdown-protocol", players: "3-8", genre: "Sci-Fi", style: "Dedução Social", platforms: ["PC"], price: "R$ 32,99", description: "Dedução em primeira pessoa onde você precisa matar os traidores.", linkName: "Steam", url: "https://store.steampowered.com/app/2780980/LOCKDOWN_Protocol/" },
   { id: 9, title: "Town of Salem 2", folder: "town-of-salem-2", players: "Até 15", genre: "Estratégia", style: "Dedução Social", platforms: ["PC"], price: "Grátis", description: "Enforque os culpados na vila.", linkName: "Steam", url: "https://store.steampowered.com/app/2140510/Town_of_Salem_2/" },
   { id: 27, title: "Feign", folder: "feign", players: "4-12", genre: "Estratégia", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "R$ 16,99", description: "Dedução onde você pode estar louco.", linkName: "Steam", url: "https://store.steampowered.com/app/1436990/Feign/" },
   { id: 38, title: "Deceit 2", folder: "deceit-2", players: "6-9", genre: "Terror", style: "Dedução Social", platforms: ["PC", "Console"], price: "Grátis", description: "Terror social com infectados entre os inocentes.", linkName: "Steam", url: "https://store.steampowered.com/app/2064870/Deceit_2/" },
@@ -111,6 +112,14 @@ const gamesData = [
   { id: 56, title: "Apex Legends", folder: "apex", players: "60 (3-man)", genre: "Battle Royale", style: "Times", platforms: ["PC", "Console"], price: "Grátis", description: "Battle Royale rápido e fluido.", linkName: "Steam", url: "https://store.steampowered.com/app/1172470/Apex_Legends/" },
   { id: 57, title: "Fortnite", folder: "fortnite", players: "100", genre: "Battle Royale", style: "Competitivo", platforms: ["Todas"], price: "Grátis", description: "Construção, tiro e shows ao vivo.", linkName: "Epic Games", url: "https://www.fortnite.com/" },
   
+  // --- MMORPGs (NOVA CATEGORIA) ---
+  { id: 66, title: "World of Warcraft", folder: "wow", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC"], price: "Pago (Sub)", description: "O maior MMORPG de todos. Dungeons e Raids épicas.", linkName: "Battle.net", url: "https://worldofwarcraft.blizzard.com/" },
+  { id: 67, title: "Final Fantasy XIV", folder: "ffxiv", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC", "Console"], price: "Pago (Sub)", description: "História incrível e comunidade acolhedora. Tem trial grátis.", linkName: "Site Oficial", url: "https://freetrial.finalfantasyxiv.com/" },
+  { id: 68, title: "Elder Scrolls Online", folder: "eso", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC", "Console"], price: "Pago", description: "O mundo de Skyrim e Oblivion online com amigos.", linkName: "Steam", url: "https://store.steampowered.com/app/306130/The_Elder_Scrolls_Online/" },
+  { id: 69, title: "Guild Wars 2", folder: "gw2", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC"], price: "Grátis (Base)", description: "Mundo dinâmico e combate fluido sem mensalidade.", linkName: "Site Oficial", url: "https://www.guildwars2.com/" },
+  { id: 70, title: "Albion Online", folder: "albion", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC", "Mobile"], price: "Grátis", description: "Você é o que você veste. Full loot PvP e economia player-driven.", linkName: "Steam", url: "https://store.steampowered.com/app/761890/Albion_Online/" },
+  { id: 71, title: "Lost Ark", folder: "lost-ark", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC"], price: "Grátis", description: "Visão isométrica (Diablo) com raids insanas.", linkName: "Steam", url: "https://store.steampowered.com/app/1599340/Lost_Ark/" },
+
   // --- ESTRATÉGIA, MOBA & OUTROS ---
   { id: 58, title: "League of Legends", folder: "lol", players: "10 (5v5)", genre: "MOBA", style: "Times", platforms: ["PC", "Mac"], price: "Grátis", description: "O MOBA mais popular.", linkName: "Riot Games", url: "https://www.leagueoflegends.com/" },
   { id: 59, title: "Dota 2", folder: "dota-2", players: "10 (5v5)", genre: "MOBA", style: "Times", platforms: ["PC"], price: "Grátis", description: "Complexo, profundo e gratuito.", linkName: "Steam", url: "https://store.steampowered.com/app/570/Dota_2/" },
@@ -218,7 +227,7 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
           <div className="p-8">
             <h2 className="text-2xl font-black text-blue-700 flex items-center gap-2 mb-6"><Dices size={28} /> Configurar Sorteio</h2>
             <div className="space-y-6">
-              <div><label className="block text-sm font-bold text-gray-700 mb-2">Estilo</label><div className="flex flex-wrap gap-2">{['Todos', 'Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival'].map(opt => (<button key={opt} onClick={() => setFilters({...filters, style: opt})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.style === opt ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{opt}</button>))}</div></div>
+              <div><label className="block text-sm font-bold text-gray-700 mb-2">Estilo</label><div className="flex flex-wrap gap-2">{['Todos', 'MMO', 'Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival'].map(opt => (<button key={opt} onClick={() => setFilters({...filters, style: opt})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.style === opt ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{opt}</button>))}</div></div>
               <div><label className="block text-sm font-bold text-gray-700 mb-2">Tamanho do Grupo</label><div className="flex flex-wrap gap-2">{[{l:'Qualquer',v:'Qualquer'},{l:'Pequeno (até 8)',v:'Pequeno'},{l:'Médio (8-16)',v:'Médio'},{l:'Grande (17+)',v:'Grande'}].map(opt => (<button key={opt.v} onClick={() => setFilters({...filters, playerCount: opt.v})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.playerCount === opt.v ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{opt.l}</button>))}</div></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="block text-sm font-bold text-gray-700 mb-2">Plataforma</label><select value={filters.platform} onChange={(e) => setFilters({...filters, platform: e.target.value})} className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">{['Todas', 'PC', 'Web', 'Mobile', 'Console'].map(p => <option key={p} value={p}>{p}</option>)}</select></div>
@@ -318,6 +327,7 @@ const GamesTable = ({ games }) => (
   </div>
 );
 
+// --- APP PRINCIPAL ---
 export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [platformFilter, setPlatformFilter] = useState("Todas");
@@ -367,10 +377,12 @@ export default function App() {
             
             <FilterButton active={styleFilter === "Competitivo"} onClick={() => setStyleFilter(styleFilter === "Competitivo" ? "Todos" : "Competitivo")} icon={Swords}>PvP</FilterButton>
             <FilterButton active={styleFilter === "Cooperativo"} onClick={() => setStyleFilter(styleFilter === "Cooperativo" ? "Todos" : "Cooperativo")} icon={Handshake}>Co-op</FilterButton>
+            <FilterButton active={styleFilter === "MMO"} onClick={() => setStyleFilter(styleFilter === "MMO" ? "Todos" : "MMO")} icon={Crown}>MMO</FilterButton>
             <FilterButton active={styleFilter === "Dedução Social"} onClick={() => setStyleFilter(styleFilter === "Dedução Social" ? "Todos" : "Dedução Social")} icon={BrainCircuit}>Dedução</FilterButton>
             <FilterButton active={styleFilter === "Times"} onClick={() => setStyleFilter(styleFilter === "Times" ? "Todos" : "Times")} icon={UsersRound}>Times</FilterButton>
             
             <div className="w-px h-6 bg-gray-300 mx-2 self-center hidden md:block"></div>
+            
             <FilterButton active={priceFilter === "Todos"} onClick={() => setPriceFilter("Todos")}>Todos Preços</FilterButton>
             <FilterButton active={priceFilter === "Grátis"} onClick={() => setPriceFilter("Grátis")}>Grátis</FilterButton>
           </div>
