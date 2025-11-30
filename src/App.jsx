@@ -5,7 +5,7 @@ import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart,
 // PARA O SEU SERVIDOR ES2020: Descomente o bloco abaixo.
 // (Mantive comentado aqui apenas para evitar erro no visualizador do chat)
 
-const allGameImages = {}; 
+let allGameImages = {}; 
 
 allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
   eager: true,
