@@ -1,21 +1,16 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, Users, Monitor, Smartphone, Globe, Gamepad2, Tag, ShoppingCart, Info, List, Grid, ExternalLink, Play, ChevronLeft, ChevronRight, X, Dices, RotateCw, Filter, Swords, Handshake, BrainCircuit, PartyPopper, UsersRound, Ghost, Hammer, Crown, DollarSign } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DE IMAGENS ---
-// 1. Inicializa vazio (Fallback para o chat)
 let allGameImages = {};
 
-// 2. NO SEU SERVIDOR (Vite/Vercel com ES2020):
-// Remova as barras (//) das linhas abaixo para ativar a leitura automática.
-
+// NO SEU SERVIDOR: Descomente para imagens reais
 allGameImages = import.meta.glob('/src/assets/games/**/*.{png,jpg,jpeg,webp,gif}', {
   eager: true,
   import: 'default',
   query: '?url'
 });
 
-
-// Função para buscar imagens
 const getImagesForGame = (folderName, gameTitle) => {
   const images = Object.keys(allGameImages)
     .filter((path) => path.includes(`/${folderName}/`))
@@ -30,9 +25,22 @@ const getImagesForGame = (folderName, gameTitle) => {
   ];
 };
 
+// --- HELPER FUNCTIONS ---
+
+// Extrai valor numérico do preço
+const parsePrice = (priceStr) => {
+  if (!priceStr) return 999;
+  const lower = priceStr.toLowerCase();
+  if (lower.includes('grátis') || lower.includes('free')) return 0;
+  // Pega o primeiro número encontrado, substitui vírgula por ponto
+  const match = priceStr.match(/(\d+[.,]?\d*)/);
+  if (match) return parseFloat(match[0].replace(',', '.'));
+  return 999; // Se não achar número e não for grátis, joga pro alto (ex: "Pago")
+};
+
 const getMaxPlayers = (playerStr) => {
   if (typeof playerStr !== 'string') return 0;
-  if (playerStr.toLowerCase().includes('ilimitado') || playerStr.toLowerCase().includes('mmo') || playerStr.toLowerCase().includes('massivo')) return 999;
+  if (playerStr.toLowerCase().includes('ilimitado') || playerStr.toLowerCase().includes('mmo')) return 999;
   const numbers = playerStr.match(/(\d+)/g);
   if (!numbers) return 0;
   return Math.max(...numbers.map(Number));
@@ -52,7 +60,6 @@ const getStyleIcon = (style) => {
   }
 };
 
-// --- DADOS DOS JOGOS (COM MMORPGs) ---
 const gamesData = [
   // --- PARTY & CASUAL ---
   { id: 1, title: "Fall Guys", folder: "fall-guys", players: "Até 60", genre: "Battle Royale", style: "Competitivo", platforms: ["PC", "Console", "Switch"], price: "Grátis", description: "Gincanas caóticas com jujubas. Obrigatório para grupos grandes.", linkName: "Epic Games", url: "https://store.epicgames.com/pt-BR/p/fall-guys" },
@@ -72,7 +79,7 @@ const gamesData = [
   { id: 5, title: "Among Us", folder: "among-us", players: "4-15", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile", "Console"], price: "R$ 16,99 / Grátis", description: "Descubra o impostor.", linkName: "Steam", url: "https://store.steampowered.com/app/945360/Among_Us/" },
   { id: 6, title: "Goose Goose Duck", folder: "goose-goose-duck", players: "16+", genre: "Dedução", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "Grátis", description: "Among Us com patos e chat de voz.", linkName: "Steam", url: "https://store.steampowered.com/app/1568590/Goose_Goose_Duck/" },
   { id: 7, title: "Dale & Dawson", folder: "dale-dawson", players: "Até 21", genre: "Roleplay", style: "Dedução Social", platforms: ["PC"], price: "R$ 26,49", description: "Quem trabalha e quem finge no escritório?", linkName: "Steam", url: "https://store.steampowered.com/app/2920570/Dale__Dawson_Stationery_Supplies/" },
-  { id: 8, title: "Lockdown Protocol", folder: "lockdown-protocol", players: "3-8", genre: "Sci-Fi", style: "Dedução Social", platforms: ["PC"], price: "R$ 32,99", description: "Dedução em primeira pessoa onde você precisa matar os traidores.", linkName: "Steam", url: "https://store.steampowered.com/app/2780980/LOCKDOWN_Protocol/" },
+  { id: 8, title: "Lockdown Protocol", folder: "lockdown-protocol", players: "3-8", genre: "Sci-Fi", style: "Dedução Social", platforms: ["PC"], price: "R$ 32,99", description: "Mate os traidores antes que seja tarde.", linkName: "Steam", url: "https://store.steampowered.com/app/2780980/LOCKDOWN_Protocol/" },
   { id: 9, title: "Town of Salem 2", folder: "town-of-salem-2", players: "Até 15", genre: "Estratégia", style: "Dedução Social", platforms: ["PC"], price: "Grátis", description: "Enforque os culpados na vila.", linkName: "Steam", url: "https://store.steampowered.com/app/2140510/Town_of_Salem_2/" },
   { id: 27, title: "Feign", folder: "feign", players: "4-12", genre: "Estratégia", style: "Dedução Social", platforms: ["PC", "Mobile"], price: "R$ 16,99", description: "Dedução onde você pode estar louco.", linkName: "Steam", url: "https://store.steampowered.com/app/1436990/Feign/" },
   { id: 38, title: "Deceit 2", folder: "deceit-2", players: "6-9", genre: "Terror", style: "Dedução Social", platforms: ["PC", "Console"], price: "Grátis", description: "Terror social com infectados entre os inocentes.", linkName: "Steam", url: "https://store.steampowered.com/app/2064870/Deceit_2/" },
@@ -112,7 +119,7 @@ const gamesData = [
   { id: 56, title: "Apex Legends", folder: "apex", players: "60 (3-man)", genre: "Battle Royale", style: "Times", platforms: ["PC", "Console"], price: "Grátis", description: "Battle Royale rápido e fluido.", linkName: "Steam", url: "https://store.steampowered.com/app/1172470/Apex_Legends/" },
   { id: 57, title: "Fortnite", folder: "fortnite", players: "100", genre: "Battle Royale", style: "Competitivo", platforms: ["Todas"], price: "Grátis", description: "Construção, tiro e shows ao vivo.", linkName: "Epic Games", url: "https://www.fortnite.com/" },
   
-  // --- MMORPGs (NOVA CATEGORIA) ---
+  // --- MMORPGs ---
   { id: 66, title: "World of Warcraft", folder: "wow", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC"], price: "Pago (Sub)", description: "O maior MMORPG de todos. Dungeons e Raids épicas.", linkName: "Battle.net", url: "https://worldofwarcraft.blizzard.com/" },
   { id: 67, title: "Final Fantasy XIV", folder: "ffxiv", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC", "Console"], price: "Pago (Sub)", description: "História incrível e comunidade acolhedora. Tem trial grátis.", linkName: "Site Oficial", url: "https://freetrial.finalfantasyxiv.com/" },
   { id: 68, title: "Elder Scrolls Online", folder: "eso", players: "Massivo", genre: "MMORPG", style: "MMO", platforms: ["PC", "Console"], price: "Pago", description: "O mundo de Skyrim e Oblivion online com amigos.", linkName: "Steam", url: "https://store.steampowered.com/app/306130/The_Elder_Scrolls_Online/" },
@@ -136,6 +143,7 @@ const gamesData = [
   { id: 65, title: "Ludo King", folder: "ludo", players: "4-6", genre: "Tabuleiro", style: "Casual", platforms: ["Mobile", "Web"], price: "Grátis", description: "O clássico Ludo.", linkName: "Google Play", url: "https://ludoking.com/" }
 ];
 
+// --- COMPONENTE: RULETA SVG COM IMAGENS ---
 const RouletteWheel = ({ items, onSpinEnd }) => {
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -194,23 +202,43 @@ const RouletteWheel = ({ items, onSpinEnd }) => {
   );
 };
 
+// --- MODAL DE SORTEIO COM MULTI-SELECT E RANGE ---
 const RaffleModal = ({ isOpen, onClose, allGames }) => {
   const [step, setStep] = useState('filters'); 
   const [filteredList, setFilteredList] = useState([]);
   const [winnerGame, setWinnerGame] = useState(null);
-  const [filters, setFilters] = useState({ platform: 'Todas', price: 'Todos', style: 'Todos', playerCount: 'Qualquer' });
+  
+  // ESTADO DE FILTROS DO MODAL
+  const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+  const [selectedStyles, setSelectedStyles] = useState([]);
+  const [maxPrice, setMaxPrice] = useState(300); // Slider default Max
+
+  const toggleSelection = (list, setList, value) => {
+    if (list.includes(value)) setList(list.filter(item => item !== value));
+    else setList([...list, value]);
+  };
 
   const applyFilters = () => {
     const result = allGames.filter(game => {
-      const matchPlat = filters.platform === 'Todas' || game.platforms.includes(filters.platform) || (filters.platform === 'Web' && game.platforms.includes('Web')) || (filters.platform === 'PC' && game.platforms.includes('PC'));
-      const matchPrice = filters.price === 'Todos' || (filters.price === 'Grátis' && game.price.includes('Grátis')) || (filters.price === 'Pago' && !game.price.includes('Grátis'));
-      const matchStyle = filters.style === 'Todos' || game.style === filters.style;
-      let matchPlayers = true;
-      const maxP = getMaxPlayers(game.players);
-      if (filters.playerCount === 'Pequeno') matchPlayers = maxP <= 8;
-      if (filters.playerCount === 'Médio') matchPlayers = maxP >= 8 && maxP <= 16;
-      if (filters.playerCount === 'Grande') matchPlayers = maxP > 16;
-      return matchPlat && matchPrice && matchStyle && matchPlayers;
+      // Plataforma (Se vazio = todas)
+      const matchPlatform = selectedPlatforms.length === 0 || 
+        selectedPlatforms.some(p => 
+          game.platforms.includes(p) || 
+          (p === 'Web' && game.platforms.includes('Web')) ||
+          (p === 'PC' && game.platforms.includes('PC')) ||
+          (p === 'Mobile' && game.platforms.includes('Mobile')) ||
+          (p === 'Console' && (game.platforms.includes('Console') || game.platforms.includes('Xbox') || game.platforms.includes('Switch')))
+        );
+
+      // Estilo (Se vazio = todos)
+      const matchStyle = selectedStyles.length === 0 || selectedStyles.includes(game.style);
+
+      // Preço (Slider)
+      const priceVal = parsePrice(game.price);
+      // Se slider for 0, só aceita grátis. Se > 0, aceita até aquele valor.
+      const matchPrice = maxPrice === 0 ? priceVal === 0 : priceVal <= maxPrice;
+
+      return matchPlatform && matchStyle && matchPrice;
     });
     setFilteredList(result);
     setStep('roulette');
@@ -227,12 +255,73 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
           <div className="p-8">
             <h2 className="text-2xl font-black text-blue-700 flex items-center gap-2 mb-6"><Dices size={28} /> Configurar Sorteio</h2>
             <div className="space-y-6">
-              <div><label className="block text-sm font-bold text-gray-700 mb-2">Estilo</label><div className="flex flex-wrap gap-2">{['Todos', 'MMO', 'Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival'].map(opt => (<button key={opt} onClick={() => setFilters({...filters, style: opt})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.style === opt ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{opt}</button>))}</div></div>
-              <div><label className="block text-sm font-bold text-gray-700 mb-2">Tamanho do Grupo</label><div className="flex flex-wrap gap-2">{[{l:'Qualquer',v:'Qualquer'},{l:'Pequeno (até 8)',v:'Pequeno'},{l:'Médio (8-16)',v:'Médio'},{l:'Grande (17+)',v:'Grande'}].map(opt => (<button key={opt.v} onClick={() => setFilters({...filters, playerCount: opt.v})} className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${filters.playerCount === opt.v ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}>{opt.l}</button>))}</div></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-bold text-gray-700 mb-2">Plataforma</label><select value={filters.platform} onChange={(e) => setFilters({...filters, platform: e.target.value})} className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">{['Todas', 'PC', 'Web', 'Mobile', 'Console'].map(p => <option key={p} value={p}>{p}</option>)}</select></div>
-                <div><label className="block text-sm font-bold text-gray-700 mb-2">Preço</label><select value={filters.price} onChange={(e) => setFilters({...filters, price: e.target.value})} className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">{['Todos', 'Grátis', 'Pago'].map(p => <option key={p} value={p}>{p}</option>)}</select></div>
+              
+              {/* PLATAFORMAS (Multi) */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Plataformas (Vazio = Todas)</label>
+                <div className="flex flex-wrap gap-2">
+                  {['PC', 'Web', 'Mobile', 'Console'].map(p => (
+                    <button 
+                      key={p} 
+                      onClick={() => toggleSelection(selectedPlatforms, setSelectedPlatforms, p)} 
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                        selectedPlatforms.includes(p) 
+                          ? 'bg-blue-600 text-white border-blue-600' 
+                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* ESTILOS (Multi) */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Estilos (Vazio = Todos)</label>
+                <div className="flex flex-wrap gap-2">
+                  {['Competitivo', 'Cooperativo', 'Times', 'Dedução Social', 'Casual', 'Terror', 'Survival', 'MMO'].map(style => (
+                    <button 
+                      key={style} 
+                      onClick={() => toggleSelection(selectedStyles, setSelectedStyles, style)} 
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors flex items-center gap-1 ${
+                        selectedStyles.includes(style) 
+                          ? 'bg-indigo-600 text-white border-indigo-600' 
+                          : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      {selectedStyles.includes(style) && <span className="text-xs">✓</span>}
+                      {style}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* PREÇO (Slider) */}
+              <div>
+                <div className="flex justify-between items-end mb-2">
+                  <label className="block text-sm font-bold text-gray-700">Preço Máximo</label>
+                  <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
+                    {maxPrice === 0 ? "Apenas Grátis" : maxPrice >= 300 ? "Qualquer Valor" : `Até R$ ${maxPrice},00`}
+                  </span>
+                </div>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="300" 
+                  step="10" 
+                  value={maxPrice} 
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>Grátis</span>
+                  <span>R$ 100</span>
+                  <span>R$ 200</span>
+                  <span>Ilimitado</span>
+                </div>
+              </div>
+
             </div>
             <button onClick={applyFilters} className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg transition-colors shadow-lg">Continuar para Roleta</button>
           </div>
@@ -254,6 +343,7 @@ const RaffleModal = ({ isOpen, onClose, allGames }) => {
   );
 };
 
+// --- COMPONENTES AUXILIARES ---
 const ImageModal = ({ isOpen, images, startIndex, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   useEffect(() => { if (isOpen) setCurrentIndex(startIndex); }, [isOpen, startIndex]);
@@ -330,25 +420,54 @@ const GamesTable = ({ games }) => (
 // --- APP PRINCIPAL ---
 export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [platformFilter, setPlatformFilter] = useState("Todas");
-  const [priceFilter, setPriceFilter] = useState("Todos");
-  const [styleFilter, setStyleFilter] = useState("Todos");
   const [viewMode, setViewMode] = useState("grid");
   const [modalData, setModalData] = useState(null);
   const [raffleOpen, setRaffleOpen] = useState(false);
 
+  // ESTADO DE FILTROS PRINCIPAL (Multi-select)
+  const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+  const [selectedStyles, setSelectedStyles] = useState([]);
+  const [maxPrice, setMaxPrice] = useState(300); // 300 = Ilimitado
+
+  const toggleSelection = (list, setList, value) => {
+    if (list.includes(value)) setList(list.filter(item => item !== value));
+    else setList([...list, value]);
+  };
+
   const filteredGames = useMemo(() => {
     return gamesData.filter(game => {
       const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) || game.genre.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesPlatform = platformFilter === "Todas" || (platformFilter === "Web" && game.platforms.includes("Web")) || (platformFilter === "Mobile" && game.platforms.includes("Mobile")) || (platformFilter === "Console" && (game.platforms.includes("Console") || game.platforms.includes("Xbox") || game.platforms.includes("Switch")));
-      const matchesPrice = priceFilter === "Todos" || (priceFilter === "Grátis" && game.price.includes("Grátis")) || (priceFilter === "Pago" && !game.price.includes("Grátis"));
-      const matchesStyle = styleFilter === "Todos" || game.style === styleFilter;
+      
+      // Plataforma (Multi)
+      const matchesPlatform = selectedPlatforms.length === 0 || 
+        selectedPlatforms.some(p => 
+          game.platforms.includes(p) || 
+          (p === 'Web' && game.platforms.includes('Web')) ||
+          (p === 'PC' && game.platforms.includes('PC')) ||
+          (p === 'Mobile' && game.platforms.includes('Mobile')) ||
+          (p === 'Console' && (game.platforms.includes('Console') || game.platforms.includes('Xbox') || game.platforms.includes('Switch')))
+        );
+
+      // Estilo (Multi)
+      const matchesStyle = selectedStyles.length === 0 || selectedStyles.includes(game.style);
+
+      // Preço (Slider)
+      const priceVal = parsePrice(game.price);
+      const matchesPrice = maxPrice === 0 ? priceVal === 0 : priceVal <= maxPrice;
+
       return matchesSearch && matchesPlatform && matchesPrice && matchesStyle;
     });
-  }, [searchTerm, platformFilter, priceFilter, styleFilter]);
+  }, [searchTerm, selectedPlatforms, selectedStyles, maxPrice]);
 
   const handleOpenModal = (images, index) => {
     setModalData({ images, startIndex: index });
+  };
+
+  const clearFilters = () => {
+    setSelectedPlatforms([]);
+    setSelectedStyles([]);
+    setMaxPrice(300);
+    setSearchTerm("");
   };
 
   return (
@@ -367,30 +486,49 @@ export default function App() {
             <div><h1 className="text-2xl font-black text-blue-700 flex items-center gap-2"><Gamepad2 className="text-blue-600" /> Galera Gamer 10+</h1><p className="text-xs text-gray-500 mt-1">Catálogo de jogos com preços (Brasil) e links diretos</p></div>
             <div className="flex gap-2 w-full md:w-auto"><div className="relative flex-1 md:w-80"><input type="text" placeholder="Buscar jogo..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none" /><Search className="absolute left-3 top-2.5 text-gray-400" size={18} /></div><div className="flex bg-gray-100 rounded-lg p-1 gap-1"><button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow text-blue-600' : 'text-gray-400 hover:text-gray-600'}`} title="Visualização em Cards"><Grid size={20} /></button><button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-white shadow text-blue-600' : 'text-gray-400 hover:text-gray-600'}`} title="Visualização em Tabela"><List size={20} /></button></div></div>
           </div>
-          <div className="flex flex-wrap gap-2 mt-4 pt-2 border-t border-gray-100 overflow-x-auto pb-2 scrollbar-hide">
-            <FilterButton active={platformFilter === "Todas"} onClick={() => setPlatformFilter("Todas")} icon={Gamepad2}>Todas</FilterButton>
-            <FilterButton active={platformFilter === "Web"} onClick={() => setPlatformFilter("Web")} icon={Globe}>Web</FilterButton>
-            <FilterButton active={platformFilter === "Mobile"} onClick={() => setPlatformFilter("Mobile")} icon={Smartphone}>Mobile</FilterButton>
-            <FilterButton active={platformFilter === "Console"} onClick={() => setPlatformFilter("Console")} icon={Monitor}>Console</FilterButton>
-            
-            <div className="w-px h-6 bg-gray-300 mx-2 self-center hidden md:block"></div>
-            
-            <FilterButton active={styleFilter === "Competitivo"} onClick={() => setStyleFilter(styleFilter === "Competitivo" ? "Todos" : "Competitivo")} icon={Swords}>PvP</FilterButton>
-            <FilterButton active={styleFilter === "Cooperativo"} onClick={() => setStyleFilter(styleFilter === "Cooperativo" ? "Todos" : "Cooperativo")} icon={Handshake}>Co-op</FilterButton>
-            <FilterButton active={styleFilter === "MMO"} onClick={() => setStyleFilter(styleFilter === "MMO" ? "Todos" : "MMO")} icon={Crown}>MMO</FilterButton>
-            <FilterButton active={styleFilter === "Dedução Social"} onClick={() => setStyleFilter(styleFilter === "Dedução Social" ? "Todos" : "Dedução Social")} icon={BrainCircuit}>Dedução</FilterButton>
-            <FilterButton active={styleFilter === "Times"} onClick={() => setStyleFilter(styleFilter === "Times" ? "Todos" : "Times")} icon={UsersRound}>Times</FilterButton>
-            
-            <div className="w-px h-6 bg-gray-300 mx-2 self-center hidden md:block"></div>
-            
-            <FilterButton active={priceFilter === "Todos"} onClick={() => setPriceFilter("Todos")}>Todos Preços</FilterButton>
-            <FilterButton active={priceFilter === "Grátis"} onClick={() => setPriceFilter("Grátis")}>Grátis</FilterButton>
+          
+          <div className="flex flex-col gap-4 mt-4 pt-2 border-t border-gray-100">
+            {/* PLATAFORMAS */}
+            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 scrollbar-hide items-center">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wide mr-2">Plataformas:</span>
+              {['PC', 'Web', 'Mobile', 'Console'].map(p => (
+                <FilterButton key={p} active={selectedPlatforms.includes(p)} onClick={() => toggleSelection(selectedPlatforms, setSelectedPlatforms, p)} icon={
+                  p === 'PC' ? Monitor : p === 'Web' ? Globe : p === 'Mobile' ? Smartphone : Gamepad2
+                }>{p}</FilterButton>
+              ))}
+            </div>
+
+            {/* ESTILOS */}
+            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 scrollbar-hide items-center">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wide mr-2">Estilos:</span>
+              <FilterButton active={selectedStyles.includes('Competitivo')} onClick={() => toggleSelection(selectedStyles, setSelectedStyles, 'Competitivo')} icon={Swords}>PvP</FilterButton>
+              <FilterButton active={selectedStyles.includes('Cooperativo')} onClick={() => toggleSelection(selectedStyles, setSelectedStyles, 'Cooperativo')} icon={Handshake}>Co-op</FilterButton>
+              <FilterButton active={selectedStyles.includes('MMO')} onClick={() => toggleSelection(selectedStyles, setSelectedStyles, 'MMO')} icon={Crown}>MMO</FilterButton>
+              <FilterButton active={selectedStyles.includes('Dedução Social')} onClick={() => toggleSelection(selectedStyles, setSelectedStyles, 'Dedução Social')} icon={BrainCircuit}>Dedução</FilterButton>
+              <FilterButton active={selectedStyles.includes('Times')} onClick={() => toggleSelection(selectedStyles, setSelectedStyles, 'Times')} icon={UsersRound}>Times</FilterButton>
+            </div>
+
+            {/* PREÇO SLIDER */}
+            <div className="flex items-center gap-4 py-2 border-t border-gray-100">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wide">Preço Máx:</span>
+              <div className="flex-1 max-w-xs flex items-center gap-3">
+                <input 
+                  type="range" min="0" max="300" step="10" 
+                  value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+                <span className="text-sm font-bold text-blue-700 whitespace-nowrap min-w-[80px]">
+                  {maxPrice === 0 ? "Grátis" : maxPrice >= 300 ? "Ilimitado" : `R$ ${maxPrice}`}
+                </span>
+              </div>
+              <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-red-500 underline ml-auto">Limpar Tudo</button>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8 pb-24">
-        <div className="flex justify-between items-center mb-6"><h2 className="text-lg font-bold text-gray-700">{filteredGames.length} Jogos Encontrados</h2>{filteredGames.length === 0 && (<button onClick={() => {setPlatformFilter("Todas"); setPriceFilter("Todos"); setStyleFilter("Todos"); setSearchTerm("")}} className="text-blue-600 text-sm hover:underline">Limpar filtros</button>)}</div>
+        <div className="flex justify-between items-center mb-6"><h2 className="text-lg font-bold text-gray-700">{filteredGames.length} Jogos Encontrados</h2>{filteredGames.length === 0 && (<button onClick={clearFilters} className="text-blue-600 text-sm hover:underline">Limpar filtros</button>)}</div>
         {filteredGames.length > 0 ? (<>{viewMode === 'grid' ? (<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">{filteredGames.map(game => (<GameCard key={game.id} game={game} onImageClick={handleOpenModal} />))}</div>) : (<GamesTable games={filteredGames} />)}</>) : (<div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300"><Gamepad2 size={48} className="mx-auto text-gray-300 mb-4" /><h3 className="text-xl font-medium text-gray-600">Nenhum jogo encontrado</h3></div>)}
       </main>
       
